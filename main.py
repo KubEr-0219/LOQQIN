@@ -4,6 +4,7 @@ from src.preprocess import clean_text
 from src.model import train_model
 from src.model import predict_question
 from src.model import rank_questions
+from src.utils import save_objects
 
 # Load dataset
 data = pd.read_csv("data/questions.csv")
@@ -58,3 +59,8 @@ ranked_output = rank_questions(model, vectorizer, test_questions)
 print("\nLOQQIN Ranked Questions 🔥")
 for q, score in ranked_output:
     print(f"{q}  --> Score: {round(score,2)}")
+
+# Save trained LOQQIN brain
+save_objects(model, vectorizer)
+
+print("Model and vectorizer saved ✅")
