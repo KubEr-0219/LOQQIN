@@ -1,10 +1,11 @@
-from src.features import create_tfidf_features
+import os
 import pandas as pd
+
+from src.features import create_tfidf_features
 from src.preprocess import clean_text
-from src.model import train_model
-from src.model import predict_question
-from src.model import rank_questions
-from src.utils import save_objects
+from src.model import train_model, predict_question, rank_questions
+from src.utils import save_objects, load_objects
+
 
 # Load dataset
 data = pd.read_csv("data/questions.csv")
@@ -20,13 +21,23 @@ X, vectorizer = create_tfidf_features(data["cleaned_question"])
 
 print("\nTF-IDF Shape:", X.shape)
 
-# Labels (target values)
-y = data["label"]
 
-# Train the model
-model = train_model(X, y)
+# -------------------------------
+# AUTO LOAD OR TRAIN MODEL
+# -------------------------------
+if os.path.exists("model.pkl") and os.path.exists("vectorizer.pkl"):
+    print("\nLoading existing LOQQIN brain 🧠")
+    model, vectorizer = load_objects()
 
-print("\nModel trained successfully ✅")
+else:
+    print("\nTraining LOQQIN for first time 🚀")
+
+    y = data["label"]
+    model = train_model(X, y)
+
+    save_objects(model, vectorizer)
+    print("Model trained and saved ✅")
+
 
 # ---- Test LOQQIN on a new question ----
 new_question = "Explain gradient descent algorithm"
@@ -34,7 +45,7 @@ new_question = "Explain gradient descent algorithm"
 prediction, confidence = predict_question(
     model,
     vectorizer,
-    [new_question][0]   # keeps format simple
+    new_question
 )
 
 print("\nNew Question:", new_question)
@@ -45,6 +56,7 @@ else:
     print("Prediction: Surface Level Question")
 
 print("Confidence:", round(confidence, 2))
+
 
 # ---- Rank multiple questions ----
 test_questions = [
@@ -59,8 +71,3 @@ ranked_output = rank_questions(model, vectorizer, test_questions)
 print("\nLOQQIN Ranked Questions 🔥")
 for q, score in ranked_output:
     print(f"{q}  --> Score: {round(score,2)}")
-
-# Save trained LOQQIN brain
-save_objects(model, vectorizer)
-
-print("Model and vectorizer saved ✅")
