@@ -68,7 +68,18 @@ if st.button("Rank Questions"):
     st.subheader("Ranked Questions 🔥")
 
     for q, score in ranked:
-        st.write(f"{q} — Score: {round(score, 2)}")
+        st.write(q)
+
+    # visual score bar
+    st.progress(float(score))
+
+    # colored label
+    if score > 0.7:
+        st.success(f"High Quality ⭐ ({round(score,2)})")
+    elif score > 0.4:
+        st.info(f"Medium Quality ({round(score,2)})")
+    else:
+        st.warning(f"Low Quality ({round(score,2)})")
 
 
 # =====================================================
