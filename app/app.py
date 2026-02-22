@@ -13,6 +13,32 @@ import joblib
 from src.preprocess import clean_text
 from src.model import predict_question, rank_questions
 
+st.markdown("""
+<style>
+.block-container {
+    padding-top: 2rem;
+}
+
+h1, h2, h3 {
+    font-weight: 600;
+}
+
+.stButton>button {
+    border-radius: 10px;
+    padding: 0.5em 1.2em;
+    font-weight: 500;
+}
+
+.stTextInput>div>div>input {
+    border-radius: 10px;
+}
+
+.stTextArea textarea {
+    border-radius: 10px;
+}
+</style>
+""", unsafe_allow_html=True)
+
 
 # -----------------------------
 # LOAD LOQQIN BRAIN
@@ -24,7 +50,8 @@ vectorizer = joblib.load("vectorizer.pkl")
 # -----------------------------
 # APP TITLE
 # -----------------------------
-st.title("🧠 LOQQIN — Question Quality Analyzer")
+st.title("🧠 LOQQIN")
+st.caption("Smart Question Analysis Tool for Students")
 st.write("Analyze and rank exam questions using Machine Learning.")
 
 
@@ -49,39 +76,6 @@ if st.button("Analyze Question"):
 
     st.write("Confidence:", round(confidence, 2))
 
-
-# =====================================================
-# MULTIPLE QUESTION RANKING
-# =====================================================
-st.header("Rank Multiple Questions")
-
-multi_questions = st.text_area(
-    "Enter multiple questions (one per line):"
-)
-
-if st.button("Rank Questions"):
-    questions = [q for q in multi_questions.split("\n") if q.strip()]
-    cleaned_questions = [clean_text(q) for q in questions]
-
-    ranked = rank_questions(model, vectorizer, cleaned_questions)
-
-    st.subheader("Ranked Questions 🔥")
-
-    for q, score in ranked:
-        st.write(q)
-
-    # visual score bar
-    st.progress(float(score))
-
-    # colored label
-    if score > 0.7:
-        st.success(f"High Quality ⭐ ({round(score,2)})")
-    elif score > 0.4:
-        st.info(f"Medium Quality ({round(score,2)})")
-    else:
-        st.warning(f"Low Quality ({round(score,2)})")
-
-
 # =====================================================
 # FILE UPLOAD RANKING
 # =====================================================
@@ -104,4 +98,18 @@ if uploaded_file is not None:
     st.subheader("Ranked Questions 🔥")
 
     for q, score in ranked:
-        st.write(f"{q} — Score: {round(score, 2)}")
+        score10 = round(score * 10, 1)
+        st.write(f"{q} — Score: {score10}/10")
+
+# ---- Top Recommended Questions ----
+# show only after ranking exists
+if "ranked" in locals():
+
+    st.subheader("🏆 Top Recommended Questions")
+
+    top_questions = ranked[:3]   # top 3 highest scores
+
+    for q, score in top_questions:
+        score10 = round(score * 10, 1)
+        st.success(f"⭐ {q}  (Score: {score10}/10)")
+    
