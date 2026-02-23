@@ -13,6 +13,13 @@ import joblib
 from src.preprocess import clean_text
 from src.model import predict_question, rank_questions
 
+st.set_page_config(
+    page_title="LOQQIN",
+    page_icon="🧠",
+    layout="centered",
+    initial_sidebar_state="collapsed"
+)
+
 st.markdown("""
 <style>
 .block-container {
@@ -50,41 +57,45 @@ vectorizer = joblib.load("vectorizer.pkl")
 # -----------------------------
 # APP TITLE
 # -----------------------------
-st.title("🧠 LOQQIN")
-st.caption("Smart Question Analysis Tool for Students")
+st.markdown("## 🧠 LOQQIN")
+st.caption("AI‑Powered Question Analysis")
+st.divider()
 st.write("Analyze and rank exam questions using Machine Learning.")
 
 
 # =====================================================
 # SINGLE QUESTION PREDICTION
 # =====================================================
-st.header("Predict Question Quality")
+with st.container():
+    st.subheader("Predict Question Quality")
+    user_question = st.text_input("Enter a question:")
 
-user_question = st.text_input("Enter a question:")
+    if st.button("Analyze Question"):
+        cleaned = clean_text(user_question)
 
-if st.button("Analyze Question"):
-    cleaned = clean_text(user_question)
+        prediction, confidence = predict_question(
+            model, vectorizer, cleaned
+        )
 
-    prediction, confidence = predict_question(
-        model, vectorizer, cleaned
-    )
+        score10 = round(confidence * 10, 1)
 
-    if prediction == 1:
-        st.success("Deep Conceptual Question ✅")
-    else:
-        st.warning("Surface Level Question")
+        if prediction == 1:
+            st.success("Deep Conceptual Question ✅")
+        else:
+            st.warning("Surface Level Question")
 
-    st.write("Confidence:", round(confidence, 2))
+        st.write(f"Confidence: {score10}/10")
 
 # =====================================================
 # FILE UPLOAD RANKING
 # =====================================================
-st.header("Upload Question Paper")
+with st.container():
+    st.subheader("Upload Question Paper")
 
-uploaded_file = st.file_uploader(
-    "Upload a .txt file containing questions",
-    type=["txt"]
-)
+    uploaded_file = st.file_uploader(
+        "Upload a .txt file containing questions",
+        type=["txt"]
+    )
 
 if uploaded_file is not None:
     content = uploaded_file.read().decode("utf-8")
