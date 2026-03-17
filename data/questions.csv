@@ -1,7 +1,41 @@
 question,label
-Define machine learning,0
-Explain supervised learning with example,1
-What is AI?,0
-Compare classification and regression,1
-List types of neural networks,0
-Explain backpropagation algorithm,1
+"Define IoT",0
+"What is Internet of Things",0
+"List characteristics of IoT",0
+"What is a sensor",0
+"What is machine learning",0
+"Define cloud computing",0
+"List types of networks",0
+"What is edge computing",0
+"Define artificial intelligence",0
+"List advantages of cloud computing",0
+"Define M2M communication",0
+"List components of IoT system",0
+"Define smart devices",0
+"Explain IoT architecture",1
+"Explain physical design of IoT",1
+"Explain logical design of IoT",1
+"Explain layered architecture of IoT",1
+"Explain M2M system architecture",1
+"Compare M2M and IoT",1
+"Explain gradient descent algorithm",1
+"Explain supervised learning algorithm",1
+"Discuss advantages of edge computing",1
+"Explain cloud service models",1
+"Explain TCP/IP layered architecture",1
+"Discuss security challenges in IoT",1
+"Explain deep learning architecture",1
+"Compare classification and regression",1
+"Explain convolutional neural networks",1
+"Explain database normalization process",1
+"Explain microservices architecture",1
+"Discuss challenges in distributed systems",1
+"Compare SQL and NoSQL databases",1
+"Explain REST API architecture",1
+"Analyze IoT data processing pipeline",1
+"Explain smart city IoT architecture",1
+"Compare fog computing and cloud computing",1
+"Explain blockchain architecture",1
+"Analyze security threats in IoT networks",1
+"Discuss advantages of neural networks",1
+"Explain reinforcement learning architecture",1

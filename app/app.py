@@ -1,18 +1,29 @@
+# -----------------------------
+# IMPORTS
+# -----------------------------
 import sys
 import os
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, PROJECT_ROOT)
 
-# -----------------------------
-# IMPORTS
-# -----------------------------
 import streamlit as st
 import joblib
-
 from src.preprocess import clean_text
-from src.model import predict_question, rank_questions
+from src.model import predict_question, rank_questions, analyze_question_metrics
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+try:
+    model = joblib.load(os.path.join(BASE_DIR, "model.pkl"))
+    vectorizer = joblib.load(os.path.join(BASE_DIR, "vectorizer.pkl"))
+except FileNotFoundError:
+    st.error("⚠️ Model files not found. Please train the model first and ensure model.pkl and vectorizer.pkl are in the same folder as app.py")
+    st.stop()
+
+# -----------------------------
+# PAGE CONFIG
+# -----------------------------
 st.set_page_config(
     page_title="LOQQIN",
     page_icon="🧠",
@@ -20,107 +31,176 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# -----------------------------
+# DESIGN SYSTEM (CSS)
+# -----------------------------
 st.markdown("""
 <style>
-.block-container {
-    padding-top: 2rem;
+
+body {
+    background-color: #F9F9F7;
+}
+
+.main {
+    max-width: 780px;
+    margin: auto;
 }
 
 h1, h2, h3 {
-    font-weight: 600;
+    font-family: "Inter", sans-serif;
+    color: #1A1A2E;
 }
 
+p, label {
+    font-family: "Inter", sans-serif;
+    color: #6B7280;
+}
+
+/* Card */
+.loqqin-card {
+    background: #FFFFFF;
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+/* Button */
 .stButton>button {
-    border-radius: 10px;
-    padding: 0.5em 1.2em;
-    font-weight: 500;
+    background-color: #4F46E5;
+    color: white;
+    border-radius: 8px;
+    padding: 0.6em 1.2em;
+    border: none;
 }
 
-.stTextInput>div>div>input {
-    border-radius: 10px;
+.stButton>button:hover {
+    background-color: #4338CA;
 }
 
-.stTextArea textarea {
-    border-radius: 10px;
-}
 </style>
 """, unsafe_allow_html=True)
 
-
 # -----------------------------
-# LOAD LOQQIN BRAIN
+# HEADER
 # -----------------------------
-model = joblib.load("model.pkl")
-vectorizer = joblib.load("vectorizer.pkl")
-
-
-# -----------------------------
-# APP TITLE
-# -----------------------------
-st.markdown("## 🧠 LOQQIN")
-st.caption("AI‑Powered Question Analysis")
+st.markdown("# 🧠 LOQQIN")
+st.caption("Learning‑Oriented Question Quality Predictor")
 st.divider()
 st.write("Analyze and rank exam questions using Machine Learning.")
 
+# -----------------------------
+# TABS
+# -----------------------------
+tab1, tab2 = st.tabs(["Single Question Analyzer", "Batch Upload"])
 
 # =====================================================
-# SINGLE QUESTION PREDICTION
+# TAB 1 — SINGLE QUESTION (FIXED + POLISHED)
 # =====================================================
-with st.container():
-    st.subheader("Predict Question Quality")
-    user_question = st.text_input("Enter a question:")
+with tab1:
 
-    if st.button("Analyze Question"):
-        cleaned = clean_text(user_question)
+    # ✅ Proper card wrapper (no broken card function)
 
-        prediction, confidence = predict_question(
-            model, vectorizer, cleaned
+    st.subheader("Analyze a Question")
+
+    question = st.text_area(
+        "Enter your question",
+        placeholder="Explain the architecture of IoT..."
+    )
+
+    if st.button("Analyze Question", use_container_width=True):
+
+        if not question.strip():
+            st.warning("⚠️ Please enter a question before analyzing.")
+            st.stop()
+
+        with st.spinner("Analyzing question depth…"):
+
+            cleaned = clean_text(question)
+            prediction, score = predict_question(model, vectorizer, cleaned)
+
+        score10 = round(score, 1)
+
+        st.markdown("### Quality Score")
+
+        # ✅ progress (correct scale)
+        st.progress(float(max(0.0, min(score, 10.0))) / 10.0)
+
+        # ✅ big centered score
+        st.markdown(
+            f"<h2 style='text-align:center'>{score10}/10</h2>",
+            unsafe_allow_html=True
         )
 
-        score10 = round(confidence * 10, 1)
-
-        if prediction == 1:
-            st.success("Deep Conceptual Question ✅")
+        # ✅ quality label
+        if score10 >= 7:
+            st.success("High Quality Question ⭐")
+        elif score10 >= 4:
+            st.warning("Medium Depth Question")
         else:
-            st.warning("Surface Level Question")
+            st.error("Surface Level Question")
 
-        st.write(f"Confidence: {score10}/10")
+        # ✅ insight metrics
+        col1, col2, col3 = st.columns(3)
 
+        clarity, specificity, bloom_level = analyze_question_metrics(question)
+
+        col1.metric("Clarity", clarity)
+        col2.metric("Specificity", specificity)
+        col3.metric("Bloom Level", bloom_level)
+
+    
 # =====================================================
-# FILE UPLOAD RANKING
+# TAB 2 — BATCH UPLOAD (CLEANED)
 # =====================================================
-with st.container():
-    st.subheader("Upload Question Paper")
+with tab2:
 
     uploaded_file = st.file_uploader(
         "Upload a .txt file containing questions",
         type=["txt"]
     )
 
-if uploaded_file is not None:
-    content = uploaded_file.read().decode("utf-8")
+    if uploaded_file:
 
-    questions = [q.strip() for q in content.split("\n") if q.strip()]
-    st.write("Questions detected:", len(questions))
+        content = uploaded_file.read().decode("utf-8")
 
-    cleaned_questions = [clean_text(q) for q in questions]
-    ranked = rank_questions(model, vectorizer, cleaned_questions)
+        questions = [q.strip() for q in content.split("\n") if q.strip()]
 
-    st.subheader("Ranked Questions 🔥")
+        st.write(f"Questions detected: {len(questions)}")
 
-    for q, score in ranked:
-        score10 = round(score * 10, 1)
-        st.write(f"{q} — Score: {score10}/10")
+        cleaned_questions = [clean_text(q) for q in questions]
 
-# ---- Top Recommended Questions ----
-# show only after ranking exists
-if "ranked" in locals():
+# Zip originals with cleaned so we can display originals
+        question_pairs = list(zip(questions, cleaned_questions))
 
-    st.subheader("🏆 Top Recommended Questions")
+        ranked = rank_questions(model, vectorizer, [c for _, c in question_pairs])
 
-    top_questions = ranked[:3]   # top 3 highest scores
+# Map cleaned back to originals for display
+        cleaned_to_original = dict(zip(cleaned_questions, questions))
 
-    for q, score in top_questions:
-        score10 = round(score * 10, 1)
-        st.success(f"⭐ {q}  (Score: {score10}/10)")
-    
+        st.subheader("Ranked Questions")
+
+        for q, prediction, score in ranked:
+            original = cleaned_to_original.get(q, q)  # fallback to q if not found
+
+            score10 = round(score, 1)
+
+            st.markdown(f"### {original}")
+
+            st.progress(float(max(0.0, min(score, 10.0))) / 10.0)
+
+            col1, col2 = st.columns([1, 4])
+
+            with col1:
+                st.markdown(f"**{score10}/10**")
+
+            with col2:
+                if score10 >= 7:
+                    st.success("High Quality ⭐")
+                elif score10 >= 4:
+                    st.info("Medium Quality")
+                else:
+                    st.warning("Low Quality")
+
+            st.divider()
