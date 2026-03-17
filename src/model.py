@@ -1,13 +1,12 @@
-from sklearn.svm import LinearSVC
-from sklearn.calibration import CalibratedClassifierCV
-
+from sklearn.svm import LinearSVR
+from sklearn.linear_model import Ridge  # Alternative: more stable for small data
 
 # -----------------------------
-# TRAIN MODEL
+# TRAIN MODEL (REGRESSION)
 # -----------------------------
+
 def train_model(X, y):
-    base = LinearSVC(max_iter=2000)
-    model = CalibratedClassifierCV(base, cv=3)
+    model = Ridge(alpha=1.0)  # Regression, not classification!
     model.fit(X, y)
     return model
 
@@ -16,69 +15,61 @@ def train_model(X, y):
 # RULE BASED SCORING
 # -----------------------------
 def rule_based_score(question):
-
     question = question.lower()
     score = 0
 
-    # Deep / conceptual indicators
+    # Deep / conceptual indicators - INCREASED
     deep_keywords = [
-        "explain",
-        "compare",
-        "analyze",
-        "architecture",
-        "design",
-        "discuss",
-        "why",
-        "how",
-        "evaluate"
+        "explain ", "compare ", "analyze ", "architecture ", 
+        "design ", "discuss ", "why ", "how ", "evaluate ",
+        "architect ", "develop ", "create ", "propose ", "justify "  # Added more
     ]
 
     # Surface / basic indicators
     surface_keywords = [
-        "define",
-        "what is",
-        "list",
-        "name",
-        "state",
-        "identify"
+        "define ", "what is ", "list ", "name ", "state ", "identify "
     ]
 
     for word in deep_keywords:
         if word in question:
-            score += 2
+            score += 3  # Was 2, now 3
 
     for word in surface_keywords:
         if word in question:
-            score -= 2
+            score -= 3  # Was 2, now 3
 
     return score
 
 
 # -----------------------------
-# PREDICT SINGLE QUESTION
+# PREDICT SINGLE QUESTION (REGRESSION)
 # -----------------------------
 def predict_question(model, vectorizer, question):
-
     question_vector = vectorizer.transform([question])
-
-    prediction = model.predict(question_vector)[0]
-
-    # Real probability instead of arbitrary decision_function
-    proba = model.predict_proba(question_vector)[0]
-    confidence = proba[1]  # probability of the predicted class (0.0 - 1.0)
-
-    # Scale to 0-10
-    ml_score = confidence * 10
-
-    # Rule score (kept as modifier, reduced weight)
+    
+    # For regression: direct prediction (returns 0-10 score)
+    ml_score = model.predict(question_vector)[0]
+    
+    # Rule score (modifier)
     rule_score = rule_based_score(question)
-    rule_modifier = max(min(rule_score * 0.5, 2), -2)  # cap rule influence at ±2
-
+    
+    # Apply rule modifier with appropriate weight
+    if rule_score > 0:
+        # Boost deep questions
+        rule_modifier = min(rule_score * 0.6, 3)
+    else:
+        # Penalize surface questions
+        rule_modifier = max(rule_score * 0.6, -3)
+    
+    # Calculate final score
     final_score = ml_score + rule_modifier
-
+    
     # Clamp to 0–10
     final_score = max(min(final_score, 10), 0)
-
+    
+    # For compatibility (1 = high quality if score >= 5)
+    prediction = 1 if final_score >= 5 else 0
+    
     return prediction, final_score
 
 # -----------------------------
@@ -105,13 +96,13 @@ def analyze_question_metrics(question):
 
     # --- BLOOM'S LEVEL ---
     bloom_map = {
-        "Remember":     ["define", "list", "name", "state", "recall", "identify", "what is", "when", "who"],
-        "Understand":   ["explain", "describe", "summarize", "interpret", "classify", "what are"],
-        "Apply":        ["solve", "use", "demonstrate", "calculate", "apply", "implement"],
-        "Analyze":      ["analyze", "compare", "contrast", "differentiate", "examine", "why", "how does"],
-        "Evaluate":     ["evaluate", "justify", "assess", "critique", "argue", "defend"],
-        "Create":       ["design", "develop", "construct", "propose", "formulate", "create", "build"]
-    }
+    "Remember":    ["define ", "list ", "name ", "state ", "recall ", "identify ", "what is ", "when ", "who "],
+    "Understand":  ["explain ", "describe ", "summarize ", "interpret ", "classify ", "what are "],
+    "Apply":       ["solve ", "use ", "demonstrate ", "calculate ", "apply ", "implement "],
+    "Analyze":     ["analyze ", "compare ", "contrast ", "differentiate ", "examine ", "why ", "how does "],
+    "Evaluate":    ["evaluate ", "justify ", "assess ", "critique ", "argue ", "defend "],
+    "Create":      ["design ", "develop ", "construct ", "propose ", "formulate ", "create ", "build ", "architect "]  # ✅ Added
+}
 
     bloom_level = "Remember"  # default
     for level, keywords in bloom_map.items():

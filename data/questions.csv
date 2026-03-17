@@ -1,4 +1,14 @@
 question,label
+"What is IoT?",0
+"What is a sensor?",0
+"Define cloud computing",0
+"List IoT protocols",0
+"Name three types of networks",0
+"State the purpose of HTTP",0
+"Identify components of IoT",0
+"Recall the OSI model layers",0
+"What is edge computing?",0
+"Define machine learning",0
 "Define IoT",0
 "What is Internet of Things",0
 "List characteristics of IoT",0
@@ -39,3 +49,174 @@ question,label
 "Analyze security threats in IoT networks",1
 "Discuss advantages of neural networks",1
 "Explain reinforcement learning architecture",1
+"Recall the definition of a firewall",0
+"Name the layers of the TCP/IP model",0
+"State the function of a DNS server",0
+"Identify the purpose of an API",0
+"What is a microservice?",0
+"List three benefits of containerization",0
+"Define RESTful web services",0
+"What is the role of a load balancer?",0
+"Name common IoT communication protocols",0
+"State the difference between HTTP and HTTPS",0
+"Identify key components of a smart home system",0
+"What is supervised learning?",0
+"List types of machine learning algorithms",0
+"Define neural networks",0
+"What is the purpose of data normalization?",0
+"Recall the steps in the software development lifecycle",0
+"Name three cloud deployment models",0
+"State the meaning of latency in networking",0
+"Identify the function of an IoT gateway",0
+"What is edge analytics?",0
+"Describe how MQTT protocol works",3
+"Summarize the benefits of using containers",3
+"Explain the concept of pub-sub messaging",3
+"Interpret the role of middleware in IoT",3
+"Classify different types of cloud services",3
+"What are the main challenges in IoT security?",3
+"Explain how sensor fusion improves accuracy",3
+"Describe the workflow of a typical REST API call",3
+"Apply encryption techniques to secure data transmission",4
+"Use a decision tree to classify IoT device data",4
+"Demonstrate how to implement basic authentication",4
+"Calculate the bandwidth needed for 100 sensors",4
+"Apply normalization rules to a sensor database schema",4
+"Use SQL to aggregate telemetry data from devices",4
+"Implement a simple rule engine for IoT alerts",4
+"Calculate network overhead for MQTT vs HTTP",4
+"Apply access control policies to a smart building system",4
+"Use clustering to group similar sensor readings",4
+"Analyze the trade-offs between edge and cloud processing",6
+"Compare the security models of Zigbee and LoRaWAN",6
+"Explain how blockchain can enhance IoT data integrity",6
+"Discuss the impact of 5G on real-time IoT applications",6
+"Compare monolithic and microservices architectures for IoT",6
+"Analyze failure modes in a distributed sensor network",6
+"Explain how federated learning preserves privacy in IoT",6
+"Discuss scalability challenges in city-wide IoT deployments",6
+"Compare the energy efficiency of different wireless protocols",6
+"Analyze the cost-benefit of predictive maintenance systems",6
+"Evaluate the suitability of Kubernetes for edge IoT workloads",7
+"Assess security vulnerabilities in a smart healthcare system",7
+"Justify the choice of NoSQL over SQL for time-series sensor data",7
+"Critique the architecture of a given smart city proposal",7
+"Evaluate different edge AI frameworks for resource-constrained devices",7
+"Assess the privacy implications of continuous location tracking",7
+"Justify using event-driven architecture for IoT data pipelines",7
+"Critique the fault tolerance design of a multi-region deployment",7
+"Evaluate authentication strategies for heterogeneous IoT devices",7
+"Assess risks of over-reliance on cloud connectivity in critical systems",7
+"Design an end-to-end secure firmware update mechanism for IoT devices",8
+"Develop a real-time anomaly detection system for industrial sensors",8
+"Propose a data governance framework for multi-tenant IoT platforms",8
+"Formulate a strategy to migrate legacy SCADA systems to IoT architecture",8
+"Create a machine learning pipeline that adapts to sensor drift",8
+"Design a scalable message routing system for millions of devices",8
+"Develop a privacy-preserving aggregation protocol for smart meters",8
+"Propose improvements to reduce latency in video analytics at the edge",8
+"Create a comprehensive monitoring dashboard for IoT fleet management",8
+"Design a self-healing network topology for disaster response IoT",8
+"Architect a multi-cloud IoT solution with automatic failover",9
+"Evaluate and optimize an entire smart factory IoT ecosystem",9
+"Design a fault-tolerant, globally distributed sensor data platform",9
+"Create an end-to-end secure, scalable, and cost-optimized IoT solution",9
+"Develop an AI-powered predictive maintenance system with edge inference",9
+"Architect a global-scale, low-power wide-area network for asset tracking",9
+"Design a self-configuring, self-healing mesh network for emergency response",9
+"Create a comprehensive IoT governance framework covering security, privacy, and compliance",9
+"Develop an automated security orchestration system for dynamic IoT environments",9
+"Design a sustainable, energy-harvesting smart city infrastructure",9
+"Analyze and redesign a legacy industrial control system for IoT integration",10
+"Evaluate trade-offs across public, private, and hybrid cloud for a multinational IoT deployment",10
+"Design a complete IoT solution addressing security, scalability, interoperability, and TCO",10
+"Critique and iteratively improve an enterprise IoT architecture based on real-world constraints",10
+"Develop a full-stack AIoT platform with edge computing, federated learning, and MLOps",10
+"What is a VLAN?",0
+"Define API endpoint",0
+"List common database indexing methods",0
+"Name three types of cloud storage",0
+"State the purpose of a reverse proxy",0
+"Identify the layers in a typical neural network",0
+"What is container orchestration?",0
+"Recall the CAP theorem components",0
+"Define idempotency in REST APIs",0
+"List benefits of microservices architecture",0
+"What is a message queue?",0
+"Name authentication protocols for APIs",0
+"State the difference between TCP and UDP",0
+"Identify key metrics for system monitoring",0
+"What is eventual consistency?",0
+"Define horizontal scaling",0
+"List types of NoSQL databases",0
+"Name common CI/CD tools",0
+"State the purpose of a load balancer health check",0
+"Identify components of a Kubernetes pod",0
+"Describe how OAuth 2.0 authorization flow works",3
+"Summarize the benefits of infrastructure as code",3
+"Explain the concept of eventual consistency in distributed systems",3
+"Interpret the role of a service mesh in microservices",3
+"Classify different types of API versioning strategies",3
+"What are the main trade-offs in choosing a consensus algorithm?",3
+"Explain how caching improves application performance",3
+"Describe the workflow of a typical GraphQL query execution",3
+"Apply rate limiting to protect an API from abuse",4
+"Use exponential backoff to handle transient failures",4
+"Demonstrate how to implement circuit breaker pattern",4
+"Calculate the replication factor needed for 99.99% availability",4
+"Apply database sharding to scale a user table",4
+"Use container resource limits to prevent noisy neighbor issues",4
+"Implement health checks for a distributed service",4
+"Calculate the cost difference between on-demand and reserved instances",4
+"Apply retry logic with jitter to a flaky API call",4
+"Use feature flags to enable gradual rollout",4
+"Analyze the latency impact of synchronous vs asynchronous communication",6
+"Compare the consistency models of DynamoDB and Cassandra",6
+"Explain how distributed tracing helps debug microservices",6
+"Discuss the security implications of serverless architecture",6
+"Compare event sourcing and CRUD for audit requirements",6
+"Analyze failure scenarios in a multi-region deployment",6
+"Explain how backpressure prevents system overload",6
+"Discuss trade-offs between strong and eventual consistency",6
+"Compare the operational complexity of Kubernetes vs ECS",6
+"Analyze the cost-performance ratio of different instance types",6
+"Evaluate the suitability of WebSockets vs Server-Sent Events for real-time features",7
+"Assess security risks in a multi-tenant SaaS architecture",7
+"Justify the choice of gRPC over REST for internal microservices",7
+"Critique the observability strategy of a given distributed system",7
+"Evaluate different strategies for zero-downtime database migrations",7
+"Assess the scalability limits of a monolith vs microservices",7
+"Justify using CQRS for a high-write e-commerce system",7
+"Critique the disaster recovery plan for a cloud-native application",7
+"Evaluate authentication approaches for a B2B API platform",7
+"Assess technical debt in a legacy system migration strategy",7
+"Design a multi-region active-active architecture for global low-latency",8
+"Develop a self-healing autoscaling policy for unpredictable workloads",8
+"Propose a data residency strategy for GDPR-compliant global deployment",8
+"Formulate a migration plan from monolith to microservices with minimal downtime",8
+"Create a cost-optimization framework for multi-cloud resource allocation",8
+"Design a secure service-to-service communication layer with mTLS",8
+"Develop a progressive delivery pipeline with canary and blue-green deployments",8
+"Propose a strategy to reduce cold start latency in serverless functions",8
+"Create a comprehensive logging and alerting strategy for distributed systems",8
+"Design a fault-isolated architecture for critical payment processing",8
+"Architect a globally distributed event-driven system with exactly-once processing",9
+"Evaluate and optimize a data pipeline for real-time analytics at petabyte scale",9
+"Design a privacy-preserving federated learning system across organizational boundaries",9
+"Create an end-to-end secure, observable, and cost-optimized serverless platform",9
+"Develop an AI-driven autoscaling system that predicts demand spikes",9
+"Architect a multi-tenant platform with strong isolation and customizable SLAs",9
+"Design a self-optimizing database sharding strategy that adapts to access patterns",9
+"Create a comprehensive governance framework for AI/ML model deployment in production",9
+"Develop an automated chaos engineering platform for resilience validation",9
+"Design a sustainable cloud architecture that minimizes carbon footprint",9
+"Analyze and redesign a legacy batch processing system for real-time stream processing",10
+"Evaluate trade-offs across consistency, availability, and partition tolerance for a global financial system",10
+"Design a complete data platform addressing ingestion, transformation, serving, and governance at scale",10
+"Critique and iteratively improve a machine learning infrastructure based on latency, cost, and accuracy constraints",10
+"Develop a full-stack MLOps platform with automated retraining, monitoring, and rollback capabilities",10
+"Architect a zero-trust security model for a hybrid cloud environment with legacy integration",10
+"Design a self-healing, self-scaling, self-optimizing cloud-native application platform",10
+"Create a comprehensive strategy for migrating a monolithic ERP to cloud-native microservices with zero business disruption",10
+"Develop an intelligent resource orchestration system that balances performance, cost, and sustainability",10
+"Design a future-proof architecture that accommodates quantum-resistant cryptography and post-5G connectivity",10
