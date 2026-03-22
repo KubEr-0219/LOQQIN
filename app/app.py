@@ -3,7 +3,6 @@
 # -----------------------------
 import sys
 import os
-# ✅ FIXED: __file__ with double underscores
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, PROJECT_ROOT)
 
@@ -32,324 +31,474 @@ st.set_page_config(
 )
 
 # -----------------------------
-# ENHANCED GLASSMORPHISM CSS
-# Fixed visibility + smoother animations
+# MERCHBANAO DESIGN SYSTEM (CSS)
+# ✅ FIXED: All buttons now match (including download buttons)
 # -----------------------------
 st.markdown("""
 <style>
-    /* Import Inter Font */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
 
-    /* CSS Variables */
     :root {
-        --background-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        --glass-bg: rgba(255, 255, 255, 0.95);
-        --glass-border: rgba(255, 255, 255, 0.4);
-        --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
-        --blur: 16px;
-        
-        --foreground: #1A1A2E;
-        --foreground-secondary: #4A4A68;
-        --muted-foreground: #6B7280;
-        --primary: #6366F1;
-        --primary-hover: #4F46E5;
-        --success: #16A34A;
-        --warning: #D97706;
-        --destructive: #DC2626;
-        --radius: 18px;
+        --bg: #0D0D0D;
+        --bg-card: #141414;
+        --bg-elevated: #1C1C1C;
+        --text-primary: #F2F0EB;
+        --text-secondary: #A0A0A0;
+        --text-muted: #5A5A5A;
+        --accent: #E8E0D0;
+        --accent-glow: rgba(232, 224, 208, 0.08);
+        --border: #272727;
+        --border-active: #3D3D3D;
+        --success: #4ADE80;
+        --warning: #FBBF24;
+        --destructive: #F87171;
+        --radius: 14px;
+        --radius-sm: 10px;
     }
 
-    /* Background with Gradient */
-    .stApp {
-        background: var(--background-gradient);
-        background-attachment: fixed;
-        min-height: 100vh;
+    html, body, .stApp {
+        background-color: var(--bg) !important;
+        font-family: 'DM Sans', sans-serif;
+        color: var(--text-primary);
     }
 
-    /* Hide Streamlit Branding */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
+    #MainMenu, footer, header { visibility: hidden; }
 
-    /* Header with Better Contrast */
+    /* ── HEADER ── */
     .loqqin-header {
         text-align: center;
-        margin-bottom: 35px;
-        padding: 35px 0;
+        padding: 56px 0 40px 0;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 36px;
     }
     .loqqin-header h1 {
-        font-size: 42px;
+        font-family: 'Syne', sans-serif;
+        font-size: 52px;
         font-weight: 800;
-        color: #FFFFFF;
-        margin: 0;
-        text-shadow: 0 4px 16px rgba(0,0,0,0.3);
-        letter-spacing: -0.5px;
+        color: var(--text-primary);
+        letter-spacing: -1.5px;
+        margin: 0 0 12px 0;
     }
     .loqqin-header p {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 16px;
-        margin: 12px 0 0 0;
+        color: var(--text-muted);
+        font-size: 14px;
         font-weight: 400;
-        text-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-
-    /* Glassmorphism Card - ENHANCED VISIBILITY */
-    .glass-card {
-        background: var(--glass-bg);
-        backdrop-filter: blur(var(--blur));
-        -webkit-backdrop-filter: blur(var(--blur));
-        border: 1px solid var(--glass-border);
-        border-radius: var(--radius);
-        padding: 32px;
-        margin: 20px 0;
-        box-shadow: var(--glass-shadow);
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .glass-card:hover {
-        background: rgba(255, 255, 255, 0.98);
-        box-shadow: 0 16px 48px 0 rgba(31, 38, 135, 0.3);
-        transform: translateY(-3px);
-    }
-
-    /* Button with Better Contrast */
-    .stButton>button {
-        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
-        color: white !important;
-        border-radius: calc(var(--radius) - 6px);
-        padding: 14px 32px;
-        border: 1px solid rgba(255,255,255,0.3);
-        font-weight: 600;
-        font-family: 'Inter', sans-serif;
-        font-size: 15px;
-        width: 100%;
-        height: 52px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
-        letter-spacing: 0.2px;
-    }
-    .stButton>button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 28px rgba(99, 102, 241, 0.5);
-    }
-
-    /* Progress Bar */
-    .stProgress > div > div > div > div {
-        background: linear-gradient(90deg, var(--primary) 0%, var(--primary-hover) 100%);
-        border-radius: 999px;
-        box-shadow: 0 2px 12px rgba(99, 102, 241, 0.5);
-    }
-    .stProgress > div {
-        height: 16px;
-        border-radius: 999px;
-        background: rgba(0, 0, 0, 0.15);
-        backdrop-filter: blur(4px);
-    }
-
-    /* Score Display */
-    .score-display {
-        font-size: 56px;
-        font-weight: 800;
-        background: linear-gradient(135deg, var(--foreground) 0%, var(--primary) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        text-align: center;
-        margin: 18px 0;
-        text-shadow: 0 4px 16px rgba(0,0,0,0.1);
-    }
-    .score-display span {
-        font-size: 24px;
-        font-weight: 600;
-        color: var(--muted-foreground);
-        -webkit-text-fill-color: var(--muted-foreground);
-    }
-
-    /* Glass Badges - ENHANCED */
-    .badge {
-        display: inline-block;
-        padding: 10px 24px;
-        border-radius: 999px;
-        font-size: 15px;
-        font-weight: 700;
-        width: 100%;
-        text-align: center;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        border: 1px solid rgba(255,255,255,0.3);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    .badge-high {
-        background: rgba(22, 163, 74, 0.25);
-        color: var(--success);
-        border-color: rgba(22, 163, 74, 0.4);
-    }
-    .badge-med {
-        background: rgba(217, 119, 6, 0.25);
-        color: var(--warning);
-        border-color: rgba(217, 119, 6, 0.4);
-    }
-    .badge-low {
-        background: rgba(220, 38, 38, 0.25);
-        color: var(--destructive);
-        border-color: rgba(220, 38, 38, 0.4);
-    }
-
-    /* Glass Metrics Cards */
-    .metric-card {
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        padding: 22px;
-        border-radius: calc(var(--radius) - 6px);
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        border: 1px solid rgba(0,0,0,0.08);
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    }
-    .metric-card:hover {
-        transform: translateY(-4px);
-        background: rgba(255, 255, 255, 0.85);
-        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-    }
-    .metric-label {
-        color: var(--muted-foreground);
-        font-size: 13px;
-        font-weight: 700;
+        letter-spacing: 0.5px;
         text-transform: uppercase;
-        letter-spacing: 0.8px;
-    }
-    .metric-value {
-        color: var(--foreground);
-        font-size: 21px;
-        font-weight: 700;
+        margin: 0;
     }
 
-    /* Text Area - ENHANCED VISIBILITY */
-    .stTextArea label {
-        font-weight: 700;
-        color: var(--foreground);
-        font-family: 'Inter', sans-serif;
-        font-size: 15px;
-        margin-bottom: 8px;
-    }
-    .stTextArea textarea {
-        font-family: 'Inter', sans-serif;
-        border-radius: calc(var(--radius) - 6px);
-        border: 2px solid rgba(0,0,0,0.1);
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(4px);
-        font-size: 15px;
-        padding: 14px;
-        color: var(--foreground);
-        transition: all 0.3s ease;
-    }
-    .stTextArea textarea:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-        outline: none;
-    }
-
-    /* Character Counter - FIXED VISIBILITY */
-    .char-counter {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 13px;
-        font-weight: 500;
-        margin-top: 8px;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-
-    /* Divider */
-    hr {
-        border: none;
-        border-top: 1px solid rgba(0,0,0,0.1);
-        margin: 30px 0;
-    }
-
-    /* Tabs - ENHANCED */
+    /* ── TABS ── */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 10px;
-        background: rgba(255,255,255,0.15);
-        padding: 8px;
-        border-radius: calc(var(--radius) + 6px);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255,255,255,0.2);
+        gap: 4px;
+        background: var(--bg-card);
+        padding: 6px;
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        margin-bottom: 32px;
     }
     .stTabs [data-baseweb="tab"] {
-        font-family: 'Inter', sans-serif;
-        font-weight: 600;
-        border-radius: calc(var(--radius) - 6px);
+        font-family: 'DM Sans', sans-serif;
+        font-weight: 500;
+        font-size: 14px;
+        border-radius: var(--radius-sm);
         background: transparent;
         border: none;
-        color: rgba(255,255,255,0.8);
-        padding: 12px 24px;
-        transition: all 0.3s ease;
+        color: var(--text-muted);
+        padding: 10px 22px;
+        transition: all 0.2s ease;
     }
     .stTabs [data-baseweb="tab"]:hover {
-        background: rgba(255,255,255,0.2);
-        color: white;
+        color: var(--text-secondary);
+        background: var(--bg-elevated);
     }
     .stTabs [data-baseweb="tab"][aria-selected="true"] {
-        background: white;
-        color: var(--primary);
-        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        background: var(--accent);
+        color: #0D0D0D;
         font-weight: 700;
     }
 
-    /* Subheader & Caption - FIXED VISIBILITY */
-    .stSubheader {
-        color: var(--foreground);
-        font-weight: 700;
-        font-size: 22px;
-        margin-bottom: 8px;
+    /* ── SECTION TITLES ── */
+    h2, h3, .stSubheader {
+        font-family: 'Syne', sans-serif !important;
+        font-weight: 700 !important;
+        color: var(--text-primary) !important;
+        letter-spacing: -0.5px;
     }
-    .stCaption {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 14px;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    .stCaption, p.caption {
+        color: var(--text-muted) !important;
+        font-size: 13px !important;
     }
 
-    /* Expander (Glass) */
+    /* ── TEXTAREA ── */
+    .stTextArea label {
+        font-family: 'DM Sans', sans-serif;
+        font-weight: 600;
+        font-size: 13px;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .stTextArea textarea {
+        font-family: 'DM Sans', sans-serif;
+        background: var(--bg-card) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: var(--radius-sm) !important;
+        color: var(--text-primary) !important;
+        font-size: 15px;
+        padding: 16px;
+        transition: border-color 0.2s ease;
+    }
+    .stTextArea textarea:focus {
+        border-color: var(--border-active) !important;
+        box-shadow: 0 0 0 3px var(--accent-glow) !important;
+    }
+    .stTextArea textarea::placeholder {
+        color: var(--text-muted) !important;
+    }
+
+    /* ── BUTTONS ── */
+    .stButton > button,
+    .stDownloadButton > button {
+        font-family: 'DM Sans', sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+        background: var(--accent) !important;
+        color: #0D0D0D !important;
+        border: none !important;
+        border-radius: var(--radius-sm) !important;
+        padding: 14px 28px !important;
+        width: 100% !important;
+        height: 50px !important;
+        letter-spacing: 0.2px;
+        transition: all 0.2s ease !important;
+    }
+    .stButton > button:hover,
+    .stDownloadButton > button:hover {
+        background: #F2F0EB !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 6px 20px rgba(232, 224, 208, 0.15) !important;
+    }
+    .stButton > button[kind="secondary"] {
+        background: var(--bg-elevated) !important;
+        color: var(--text-secondary) !important;
+        border: 1px solid var(--border) !important;
+    }
+    .stButton > button[kind="secondary"]:hover {
+        border-color: var(--border-active) !important;
+        color: var(--text-primary) !important;
+        box-shadow: none !important;
+    }
+
+    /* ── PROGRESS BAR ── */
+    .stProgress > div > div > div > div {
+        background: linear-gradient(90deg, var(--destructive), var(--warning), var(--success));
+        border-radius: 999px;
+    }
+    .stProgress > div {
+        height: 6px;
+        border-radius: 999px;
+        background: var(--bg-elevated);
+        border: none;
+        padding: 0;
+    }
+
+    /* ── SCORE DISPLAY ── */
+    .score-display {
+        font-family: 'Syne', sans-serif;
+        font-size: 80px;
+        font-weight: 800;
+        color: var(--text-primary);
+        text-align: center;
+        letter-spacing: -3px;
+        line-height: 1;
+        margin: 24px 0 8px 0;
+    }
+    .score-display span {
+        font-size: 28px;
+        font-weight: 400;
+        color: var(--text-muted);
+        letter-spacing: 0;
+    }
+
+    /* ── BADGE ── */
+    .badge {
+        display: block;
+        padding: 12px 24px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 600;
+        text-align: center;
+        letter-spacing: 0.3px;
+        border: 1px solid;
+        width: 100%;
+    }
+    .badge-high { background: rgba(74, 222, 128, 0.08); color: var(--success); border-color: rgba(74, 222, 128, 0.25); }
+    .badge-med  { background: rgba(251, 191, 36, 0.08); color: var(--warning); border-color: rgba(251, 191, 36, 0.25); }
+    .badge-low  { background: rgba(248, 113, 113, 0.08); color: var(--destructive); border-color: rgba(248, 113, 113, 0.25); }
+
+    /* ── METRIC CARDS ── */
+    .metric-card {
+        background: var(--bg-card);
+        padding: 24px 16px;
+        border-radius: var(--radius-sm);
+        text-align: center;
+        border: 1px solid var(--border);
+        transition: border-color 0.2s ease;
+    }
+    .metric-card:hover { border-color: var(--border-active); }
+    .metric-label {
+        color: var(--text-muted);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+    }
+    .metric-value {
+        color: var(--text-primary);
+        font-family: 'Syne', sans-serif;
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    /* ── STAT CARDS ── */
+    .stat-card {
+        background: var(--bg-card);
+        padding: 20px 12px;
+        border-radius: var(--radius-sm);
+        text-align: center;
+        border: 1px solid var(--border);
+    }
+    .stat-value {
+        font-family: 'Syne', sans-serif;
+        font-size: 32px;
+        font-weight: 800;
+        color: var(--text-primary);
+    }
+    .stat-label {
+        font-size: 11px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-top: 6px;
+    }
+
+    /* ── CHAR COUNTER ── */
+    .char-counter {
+        color: var(--text-muted);
+        font-size: 12px;
+        font-weight: 500;
+        margin-top: 6px;
+    }
+
+    /* ── EXPANDER ── */
     .streamlit-expanderHeader {
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(8px);
-        border-radius: calc(var(--radius) - 6px);
-        border: 1px solid rgba(0,0,0,0.1);
+        background: var(--bg-card) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: var(--radius-sm) !important;
+        color: var(--text-primary) !important;
+        font-family: 'DM Sans', sans-serif !important;
+    }
+    .streamlit-expanderContent {
+        background: var(--bg-card) !important;
+        border: 1px solid var(--border) !important;
+        border-top: none !important;
     }
 
-    /* Success/Warning/Error Messages */
+    /* ── ALERTS ── */
     .stAlert {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(8px);
-        border-radius: calc(var(--radius) - 6px);
-        border: 1px solid rgba(0,0,0,0.1);
+        background: var(--bg-card) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: var(--radius-sm) !important;
+        color: var(--text-secondary) !important;
     }
 
-    /* Smooth Scroll */
-    html {
-        scroll-behavior: smooth;
+    /* File uploader — dark theme fix */
+[data-testid="stFileUploader"] > div {
+    background: var(--bg-card) !important;
+    border: 1px dashed var(--border-active) !important;
+    border-radius: var(--radius) !important;
+}
+[data-testid="stFileUploader"] * {
+    color: var(--text-secondary) !important;
+}
+[data-testid="stFileUploadDropzone"] {
+    background: var(--bg-card) !important;
+}
+button[data-testid="baseButton-secondary"] {
+    background: var(--bg-elevated) !important;
+    color: var(--text-secondary) !important;
+    border: 1px solid var(--border-active) !important;
+}
+
+    /* ── DIVIDER ── */
+    hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 28px 0;
     }
 
-    /* Animations */
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    /* ── SPINNER ── */
+    .stSpinner > div { border-top-color: var(--accent) !important; }
+
+    /* ── FOOTER ── */
+    .loqqin-footer {
+        text-align: center;
+        margin-top: 60px;
+        color: var(--text-muted);
+        font-size: 12px;
+        padding: 24px;
+        border-top: 1px solid var(--border);
+        letter-spacing: 0.3px;
     }
     
-    .glass-card {
-        animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Collapse double progress bar */
+.stProgress {
+    margin: 12px 0 !important;
+}
+.stProgress > div {
+    height: 5px !important;
+    padding: 0 !important;
+    background: var(--bg-elevated) !important;
+    border: none !important;
+}
+
+/* ── KEYFRAMES ── */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
     }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes scoreReveal {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ── PAGE LOAD — staggered entry ── */
+.loqqin-header {
+    animation: fadeInUp 0.5s ease-out both;
+}
+.stTabs [data-baseweb="tab-list"] {
+    animation: fadeInUp 0.5s ease-out 0.15s both;
+}
+
+/* Main content block under tabs */
+.stTabs [data-baseweb="tab-panel"] {
+    animation: fadeInUp 0.5s ease-out 0.25s both;
+}
+
+/* ── RESULT ANIMATIONS ── */
+.score-display {
+    animation: scoreReveal 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.badge {
+    animation: fadeInUp 0.4s ease-out 0.1s both;
+}
+
+/* ── METRIC CARDS — staggered ── */
+.metric-card {
+    animation: fadeInUp 0.4s ease-out both;
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+.metric-card:hover {
+    transform: translateY(-4px) !important;
+    border-color: var(--border-active) !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important;
+}
+
+/* ── STAT CARDS — staggered via nth-child ── */
+.stat-card {
+    animation: fadeInUp 0.4s ease-out both;
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+.stat-card:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25) !important;
+}
+
+/* ── EXPANDER ROWS — subtle fade in ── */
+.streamlit-expanderHeader {
+    animation: fadeIn 0.3s ease-out both;
+    transition: background 0.2s ease, border-color 0.2s ease !important;
+}
+.streamlit-expanderHeader:hover {
+    border-color: var(--border-active) !important;
+    background: var(--bg-elevated) !important;
+}
+
+/* ── BUTTON HOVER GLOW (MerchBanao style) ── */
+.stButton > button:hover,
+.stDownloadButton > button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(232, 224, 208, 0.18) !important;
+}
+.stButton > button[kind="secondary"]:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+}
+            
+/* ── EXPANDER — force dark on open state ── */
+details {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius-sm) !important;
+}
+details[open] {
+    border-color: var(--border-active) !important;
+}
+details summary {
+    background: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+}
+details > div,
+details > div > div {
+    background: var(--bg-card) !important;
+}
+
+/* Streamlit's internal expander content wrapper */
+[data-testid="stExpander"] {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius-sm) !important;
+}
+[data-testid="stExpander"] > details {
+    background: var(--bg-card) !important;
+}
+[data-testid="stExpander"] > details > summary {
+    background: var(--bg-card) !important;
+}
+[data-testid="stExpander"] > details[open] > div {
+    background: var(--bg-card) !important;
+    border-top: 1px solid var(--border) !important;
+}
+
+/* Nuclear option — catch any white divs inside expanders */
+[data-testid="stExpander"] * {
+    background-color: transparent !important;
+}
+[data-testid="stExpander"] > details,
+[data-testid="stExpander"] > details > summary,
+[data-testid="stExpander"] > details > div {
+    background-color: var(--bg-card) !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -358,7 +507,7 @@ st.markdown("""
 # -----------------------------
 st.markdown("""
 <div class="loqqin-header">
-    <h1>🧠 LOQQIN</h1>
+    <h1>LOQQIN</h1>
     <p>Learning-Oriented Question Quality Predictor</p>
 </div>
 """, unsafe_allow_html=True)
@@ -366,7 +515,7 @@ st.markdown("""
 # -----------------------------
 # TABS
 # -----------------------------
-tab1, tab2 = st.tabs(["🔍 Single Analyzer", "📦 Batch Upload"])
+tab1, tab2 = st.tabs(["Single Analyzer", "Batch Upload"])
 
 # =====================================================
 # TAB 1: SINGLE QUESTION
@@ -381,8 +530,7 @@ with tab1:
         height=140
     )
     
-    # ✅ FIXED: Character counter with better visibility
-    st.markdown(f'<p class="char-counter">📝 {len(question)} characters</p>', unsafe_allow_html=True)
+    st.markdown(f'<p class="char-counter">{len(question)} characters</p>', unsafe_allow_html=True)
     
     if st.button("✨ Analyze Question"):
         if not question.strip():
@@ -396,7 +544,7 @@ with tab1:
             score10 = round(score, 1)
             
             # Score Section
-            st.markdown('<div style="text-align: center; margin: 40px 0;">', unsafe_allow_html=True)
+            st.markdown('<div style="text-align: center; margin: 40px 0; animation: fadeInUp 0.5s ease-out both;">', unsafe_allow_html=True)
             st.markdown('<p class="metric-label">✨ Quality Score</p>', unsafe_allow_html=True)
             st.progress(min(score, 10.0) / 10.0)
             st.markdown(f'<div class="score-display">{score10}<span>/10</span></div>', unsafe_allow_html=True)
@@ -404,13 +552,13 @@ with tab1:
             # Badge
             if score10 >= 7:
                 badge_class = "badge-high"
-                badge_text = "🟢 High Quality Question ⭐"
+                badge_text = "High Quality Question"
             elif score10 >= 4:
                 badge_class = "badge-med"
-                badge_text = "🟡 Medium Depth Question"
+                badge_text = "Medium Depth Question"
             else:
                 badge_class = "badge-low"
-                badge_text = "🔴 Surface Level Question"
+                badge_text = "Surface Level Question"
             
             st.markdown(f'<div class="badge {badge_class}">{badge_text}</div>', unsafe_allow_html=True)
             st.markdown('</div>', unsafe_allow_html=True)
@@ -421,21 +569,21 @@ with tab1:
             c1, c2, c3 = st.columns(3)
             with c1:
                 st.markdown(f'''
-                <div class="metric-card">
+                <div class="metric-card" style="animation-delay: 0.05s;">
                     <div class="metric-label">👁️ Clarity</div>
                     <div class="metric-value">{clarity}</div>
                 </div>
                 ''', unsafe_allow_html=True)
             with c2:
                 st.markdown(f'''
-                <div class="metric-card">
+                <div class="metric-card" style="animation-delay: 0.15s;">
                     <div class="metric-label">🎯 Specificity</div>
                     <div class="metric-value">{specificity}</div>
                 </div>
                 ''', unsafe_allow_html=True)
             with c3:
                 st.markdown(f'''
-                <div class="metric-card">
+                <div class="metric-card" style="animation-delay: 0.25s;">
                     <div class="metric-label">📚 Bloom Level</div>
                     <div class="metric-value">{bloom}</div>
                 </div>
@@ -447,6 +595,7 @@ with tab1:
                 if st.button("🔄 Analyze Another", use_container_width=True):
                     st.rerun()
             with c2:
+                # ✅ Export button now matches (black background, white text)
                 st.download_button(
                     label="📥 Export Result",
                     data=f"LOQQIN Analysis Report\n\nQuestion: {question}\nScore: {score10}/10\nClarity: {clarity}\nSpecificity: {specificity}\nBloom Level: {bloom}\nVerdict: {badge_text}",
@@ -484,28 +633,73 @@ with tab2:
             low = sum(1 for _, _, s in ranked if s < 4)
             
             c1, c2, c3, c4 = st.columns(4)
-            c1.metric("📋 Total", len(questions))
-            c2.metric("🟢 High", high)
-            c3.metric("🟡 Medium", medium)
-            c4.metric("🔴 Low", low)
+            with c1:
+                st.markdown(f'''
+                <div class="stat-card" style="animation-delay: 0.05s;">
+                    <div class="stat-value">{len(questions)}</div>
+                    <div class="stat-label">📋 Total</div>
+                </div>
+                ''', unsafe_allow_html=True)
+            with c2:
+                st.markdown(f'''
+                <div class="stat-card" style="animation-delay: 0.12s;">
+                    <div class="stat-value" style="color: var(--success);">{high}</div>
+                    <div class="stat-label">🟢 High</div>
+                </div>
+                ''', unsafe_allow_html=True)
+            with c3:
+                st.markdown(f'''
+                <div class="stat-card" style="animation-delay: 0.19s;">
+                    <div class="stat-value" style="color: var(--warning);">{medium}</div>
+                    <div class="stat-label">🟡 Medium</div>
+                </div>
+                ''', unsafe_allow_html=True)
+            with c4:
+                st.markdown(f'''
+                <div class="stat-card" style="animation-delay: 0.26s;">
+                    <div class="stat-value" style="color: var(--destructive);">{low}</div>
+                    <div class="stat-label">🔴 Low</div>
+                </div>
+                ''', unsafe_allow_html=True)
             
             st.divider()
             
-            # Question List
-            for i, (q, pred, score) in enumerate(ranked[:10]):
+            # Show ALL questions (no limit)
+            st.markdown(f'**📋 All {len(ranked)} Questions (Ranked by Score)**')
+            
+            for i, (q, pred, score) in enumerate(ranked):
                 score10 = round(score, 1)
                 original = questions[cleaned_questions.index(q)] if q in cleaned_questions else q
-                
-                with st.expander(f"**#{i+1}** | {score10}/10 | {original[:55]}..."):
-                    st.write(f"**Full Question:** {original}")
+    # Strip any leading "N." line number artifacts from the file
+                import re
+                clean_original = re.sub(r'^\d+[\.\)]\s*', '', original)
+    
+                if score10 >= 7:
+                    badge_color = "var(--success)"
+                    badge_label = "High"
+                elif score10 >= 4:
+                    badge_color = "var(--warning)"
+                    badge_label = "Medium"
+                else:
+                    badge_color = "var(--destructive)"
+                    badge_label = "Low"
+
+                with st.expander(f"#{i+1}  ·  {score10}/10  ·  {clean_original[:65]}"):
+                    st.markdown(f"""
+                    <div style="padding: 8px 0;">
+                        <p style="color: var(--text-muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px;">Full Question</p>
+                        <p style="color: var(--text-primary); font-size: 15px; margin-bottom: 16px;">{clean_original}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
                     st.progress(min(score, 10.0) / 10.0)
-                    
-                    if score10 >= 7:
-                        st.success("🟢 High Quality ⭐")
-                    elif score10 >= 4:
-                        st.info("🟡 Medium Quality")
-                    else:
-                        st.warning("🔴 Low Quality")
+                    st.markdown(f"""
+                    <div style="margin-top: 12px;">
+                        <span style="background: transparent; border: 1px solid {badge_color}; color: {badge_color};
+                         padding: 6px 16px; border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: 0.5px;">
+                               {badge_label} Quality
+                        </span>
+                    </div>
+                    """, unsafe_allow_html=True)
             
             st.divider()
             csv_data = "Question,Score,Quality\n"
@@ -514,6 +708,7 @@ with tab2:
                 quality = "High" if s >= 7 else "Medium" if s >= 4 else "Low"
                 csv_data += f'"{original}",{s:.1f},{quality}\n'
             
+            # ✅ Export CSV button now matches (black background, white text)
             st.download_button(
                 label="📥 Export All as CSV",
                 data=csv_data,
@@ -525,4 +720,3 @@ with tab2:
                 st.rerun()
     
     st.markdown('</div>', unsafe_allow_html=True)
-
