@@ -1,53 +1,40 @@
+#!/usr/bin/env python3
 import joblib
-import os
+from src.preprocess import clean_text
+from src.model import predict_question
 
-print("🔍 LOQQIN Diagnostic Test\n")
-
-# 1. Check file locations
-print("1. Checking file locations...")
-files_to_check = [
-    "model.pkl",
-    "vectorizer.pkl",
-    "app.py",
-    "src/model.py",
-    "src/preprocess.py",
-    "src/features.py"
-]
-
-for f in files_to_check:
-    exists = os.path.exists(f)
-    status = "✅" if exists else "❌"
-    print(f"   {status} {f}")
-
-# 2. Try loading models
-print("\n2. Loading model files...")
+print("🔍 Loading model...")
 try:
     model = joblib.load("model.pkl")
-    print(f"   ✅ model.pkl loaded - Type: {type(model).__name__}")
-except Exception as e:
-    print(f"   ❌ model.pkl failed: {e}")
-
-try:
     vectorizer = joblib.load("vectorizer.pkl")
-    print(f"   ✅ vectorizer.pkl loaded - Type: {type(vectorizer).__name__}")
-except Exception as e:
-    print(f"   ❌ vectorizer.pkl failed: {e}")
+except FileNotFoundError:
+    print("❌ Run 'python train.py' first!")
+    exit(1)
 
-# 3. Test prediction
-print("\n3. Testing prediction...")
-try:
-    from src.preprocess import clean_text
-    from src.model import predict_question
-    
-    test_q = "what is iot"
-    cleaned = clean_text(test_q)
+print("\n" + "="*70)
+print("LOQQIN - Score Verification")
+print("="*70)
+
+tests = [
+    ("What is IoT?", 2, 4),
+    ("Define cloud computing", 2, 4),
+    ("Describe how MQTT works", 4, 6),
+    ("Explain IoT architecture", 6, 8),
+    ("Compare M2M and IoT", 7, 9),
+    ("Design a secure IoT system with edge computing", 8, 10),
+]
+
+print(f"\n{'Score':<8} {'Expected':<12} {'Question'}")
+print("-"*70)
+
+passed = 0
+for question, exp_min, exp_max in tests:
+    cleaned = clean_text(question)
     pred, score = predict_question(model, vectorizer, cleaned)
-    print(f"   ✅ Test question: '{test_q}'")
-    print(f"   ✅ Cleaned: '{cleaned}'")
-    print(f"   ✅ Score: {score}/10")
-except Exception as e:
-    print(f"   ❌ Prediction failed: {e}")
-    import traceback
-    traceback.print_exc()
+    in_range = exp_min <= score <= exp_max
+    if in_range: passed += 1
+    status = "✅" if in_range else "⚠️"
+    print(f"{status} {score:4.1f}/10   {exp_min}-{exp_max:4}   {question}")
 
-print("\n✅ Diagnostic Complete!")
+print("-"*70)
+print(f"Results: {passed}/{len(tests)} in expected range")

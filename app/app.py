@@ -32,26 +32,26 @@ st.set_page_config(
 
 # -----------------------------
 # MERCHBANAO DESIGN SYSTEM (CSS)
-# ✅ FIXED: All buttons now match (including download buttons)
+# ✅ UPDATED: Button aesthetic with solid bottom shadow effect
 # -----------------------------
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
 
     :root {
-        --bg: #0D0D0D;
-        --bg-card: #141414;
-        --bg-elevated: #1C1C1C;
-        --text-primary: #F2F0EB;
-        --text-secondary: #A0A0A0;
-        --text-muted: #5A5A5A;
-        --accent: #E8E0D0;
-        --accent-glow: rgba(232, 224, 208, 0.08);
-        --border: #272727;
-        --border-active: #3D3D3D;
-        --success: #4ADE80;
-        --warning: #FBBF24;
-        --destructive: #F87171;
+        --bg: #F7F5F0;
+        --bg-card: #FFFFFF;
+        --bg-elevated: #EFECE6;
+        --text-primary: #1A1A1A;
+        --text-secondary: #4A4A4A;
+        --text-muted: #9A9A9A;
+        --accent: #1A1A1A;
+        --accent-glow: rgba(26, 26, 26, 0.06);
+        --border: #E2DED6;
+        --border-active: #B8B2A8;
+        --success: #16A34A;
+        --warning: #D97706;
+        --destructive: #DC2626;
         --radius: 14px;
         --radius-sm: 10px;
     }
@@ -70,6 +70,7 @@ st.markdown("""
         padding: 56px 0 40px 0;
         border-bottom: 1px solid var(--border);
         margin-bottom: 36px;
+        animation: fadeInUp 0.5s ease-out both;
     }
     .loqqin-header h1 {
         font-family: 'Syne', sans-serif;
@@ -96,6 +97,7 @@ st.markdown("""
         border-radius: var(--radius);
         border: 1px solid var(--border);
         margin-bottom: 32px;
+        animation: fadeInUp 0.5s ease-out 0.15s both;
     }
     .stTabs [data-baseweb="tab"] {
         font-family: 'DM Sans', sans-serif;
@@ -114,7 +116,7 @@ st.markdown("""
     }
     .stTabs [data-baseweb="tab"][aria-selected="true"] {
         background: var(--accent);
-        color: #0D0D0D;
+        color: #FFFFFF;
         font-weight: 700;
     }
 
@@ -157,37 +159,53 @@ st.markdown("""
         color: var(--text-muted) !important;
     }
 
-    /* ── BUTTONS ── */
+    /* ── BUTTONS ── ✅ UPDATED WITH SHADOW AESTHETIC */
     .stButton > button,
     .stDownloadButton > button {
         font-family: 'DM Sans', sans-serif !important;
         font-weight: 600 !important;
         font-size: 14px !important;
         background: var(--accent) !important;
-        color: #0D0D0D !important;
+        color: #FFFFFF !important;
         border: none !important;
         border-radius: var(--radius-sm) !important;
         padding: 14px 28px !important;
         width: 100% !important;
         height: 50px !important;
         letter-spacing: 0.2px;
-        transition: all 0.2s ease !important;
+        position: relative !important;
+        margin-bottom: 4px !important;
+        box-shadow: 0 4px 0 #2d2d2d !important;
+        transition: transform 0.1s ease, box-shadow 0.1s ease !important;
     }
     .stButton > button:hover,
     .stDownloadButton > button:hover {
-        background: #F2F0EB !important;
-        transform: translateY(-1px) !important;
-        box-shadow: 0 6px 20px rgba(232, 224, 208, 0.15) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 0 #2d2d2d !important;
     }
-    .stButton > button[kind="secondary"] {
+    .stButton > button:active,
+    .stDownloadButton > button:active {
+        transform: translateY(4px) !important;
+        box-shadow: 0 0 0 #2d2d2d !important;
+    }
+    .stButton > button[kind="secondary"],
+    .stDownloadButton > button[kind="secondary"] {
         background: var(--bg-elevated) !important;
         color: var(--text-secondary) !important;
         border: 1px solid var(--border) !important;
+        box-shadow: 0 4px 0 #2d2d2d !important;
     }
-    .stButton > button[kind="secondary"]:hover {
+    .stButton > button[kind="secondary"]:hover,
+    .stDownloadButton > button[kind="secondary"]:hover {
         border-color: var(--border-active) !important;
         color: var(--text-primary) !important;
-        box-shadow: none !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 0 #2d2d2d !important;
+    }
+    .stButton > button[kind="secondary"]:active,
+    .stDownloadButton > button[kind="secondary"]:active {
+        transform: translateY(4px) !important;
+        box-shadow: 0 0 0 #2d2d2d !important;
     }
 
     /* ── PROGRESS BAR ── */
@@ -202,6 +220,15 @@ st.markdown("""
         border: none;
         padding: 0;
     }
+    .stProgress {
+        margin: 12px 0 !important;
+    }
+    .stProgress > div {
+        height: 5px !important;
+        padding: 0 !important;
+        background: var(--bg-elevated) !important;
+        border: none !important;
+    }
 
     /* ── SCORE DISPLAY ── */
     .score-display {
@@ -213,6 +240,7 @@ st.markdown("""
         letter-spacing: -3px;
         line-height: 1;
         margin: 24px 0 8px 0;
+        animation: scoreReveal 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
     .score-display span {
         font-size: 28px;
@@ -232,10 +260,11 @@ st.markdown("""
         letter-spacing: 0.3px;
         border: 1px solid;
         width: 100%;
+        animation: fadeInUp 0.4s ease-out 0.1s both;
     }
-    .badge-high { background: rgba(74, 222, 128, 0.08); color: var(--success); border-color: rgba(74, 222, 128, 0.25); }
-    .badge-med  { background: rgba(251, 191, 36, 0.08); color: var(--warning); border-color: rgba(251, 191, 36, 0.25); }
-    .badge-low  { background: rgba(248, 113, 113, 0.08); color: var(--destructive); border-color: rgba(248, 113, 113, 0.25); }
+    .badge-high { background: rgba(22, 163, 74, 0.08); color: var(--success); border-color: rgba(22, 163, 74, 0.3); }
+    .badge-med  { background: rgba(217, 119, 6, 0.08); color: var(--warning); border-color: rgba(217, 119, 6, 0.3); }
+    .badge-low  { background: rgba(220, 38, 38, 0.08); color: var(--destructive); border-color: rgba(220, 38, 38, 0.3); }
 
     /* ── METRIC CARDS ── */
     .metric-card {
@@ -244,9 +273,14 @@ st.markdown("""
         border-radius: var(--radius-sm);
         text-align: center;
         border: 1px solid var(--border);
-        transition: border-color 0.2s ease;
+        transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        animation: fadeInUp 0.4s ease-out both;
     }
-    .metric-card:hover { border-color: var(--border-active); }
+    .metric-card:hover {
+        transform: translateY(-4px) !important;
+        border-color: var(--border-active) !important;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08) !important;
+    }
     .metric-label {
         color: var(--text-muted);
         font-size: 11px;
@@ -269,6 +303,12 @@ st.markdown("""
         border-radius: var(--radius-sm);
         text-align: center;
         border: 1px solid var(--border);
+        animation: fadeInUp 0.4s ease-out both;
+        transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.08) !important;
     }
     .stat-value {
         font-family: 'Syne', sans-serif;
@@ -293,12 +333,31 @@ st.markdown("""
     }
 
     /* ── EXPANDER ── */
+    [data-testid="stExpander"] {
+        background: var(--bg-card) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: var(--radius-sm) !important;
+    }
+    [data-testid="stExpander"] > details > summary {
+        background: var(--bg-card) !important;
+        color: var(--text-primary) !important;
+    }
+    [data-testid="stExpander"] > details[open] > div {
+        background: var(--bg-card) !important;
+        border-top: 1px solid var(--border) !important;
+    }
     .streamlit-expanderHeader {
         background: var(--bg-card) !important;
         border: 1px solid var(--border) !important;
         border-radius: var(--radius-sm) !important;
         color: var(--text-primary) !important;
         font-family: 'DM Sans', sans-serif !important;
+        animation: fadeIn 0.3s ease-out both;
+        transition: background 0.2s ease, border-color 0.2s ease !important;
+    }
+    .streamlit-expanderHeader:hover {
+        border-color: var(--border-active) !important;
+        background: var(--bg-elevated) !important;
     }
     .streamlit-expanderContent {
         background: var(--bg-card) !important;
@@ -314,23 +373,23 @@ st.markdown("""
         color: var(--text-secondary) !important;
     }
 
-    /* File uploader — dark theme fix */
-[data-testid="stFileUploader"] > div {
-    background: var(--bg-card) !important;
-    border: 1px dashed var(--border-active) !important;
-    border-radius: var(--radius) !important;
-}
-[data-testid="stFileUploader"] * {
-    color: var(--text-secondary) !important;
-}
-[data-testid="stFileUploadDropzone"] {
-    background: var(--bg-card) !important;
-}
-button[data-testid="baseButton-secondary"] {
-    background: var(--bg-elevated) !important;
-    color: var(--text-secondary) !important;
-    border: 1px solid var(--border-active) !important;
-}
+    /* ── FILE UPLOADER ── */
+    [data-testid="stFileUploader"] > div {
+        background: var(--bg-card) !important;
+        border: 1px dashed var(--border-active) !important;
+        border-radius: var(--radius) !important;
+    }
+    [data-testid="stFileUploader"] * {
+        color: var(--text-secondary) !important;
+    }
+    [data-testid="stFileUploadDropzone"] {
+        background: var(--bg-card) !important;
+    }
+    button[data-testid="baseButton-secondary"] {
+        background: var(--bg-elevated) !important;
+        color: var(--text-secondary) !important;
+        border: 1px solid var(--border-active) !important;
+    }
 
     /* ── DIVIDER ── */
     hr {
@@ -352,153 +411,24 @@ button[data-testid="baseButton-secondary"] {
         border-top: 1px solid var(--border);
         letter-spacing: 0.3px;
     }
-    
-    /* Collapse double progress bar */
-.stProgress {
-    margin: 12px 0 !important;
-}
-.stProgress > div {
-    height: 5px !important;
-    padding: 0 !important;
-    background: var(--bg-elevated) !important;
-    border: none !important;
-}
 
-/* ── KEYFRAMES ── */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(18px);
+    /* ── KEYFRAMES ── */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(18px); }
+        to   { opacity: 1; transform: translateY(0); }
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
     }
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-
-@keyframes scoreReveal {
-    from {
-        opacity: 0;
-        transform: translateY(24px) scale(0.95);
+    @keyframes scoreReveal {
+        from { opacity: 0; transform: translateY(24px) scale(0.95); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
     }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
+
+    .stTabs [data-baseweb="tab-panel"] {
+        animation: fadeInUp 0.5s ease-out 0.25s both;
     }
-}
-
-/* ── PAGE LOAD — staggered entry ── */
-.loqqin-header {
-    animation: fadeInUp 0.5s ease-out both;
-}
-.stTabs [data-baseweb="tab-list"] {
-    animation: fadeInUp 0.5s ease-out 0.15s both;
-}
-
-/* Main content block under tabs */
-.stTabs [data-baseweb="tab-panel"] {
-    animation: fadeInUp 0.5s ease-out 0.25s both;
-}
-
-/* ── RESULT ANIMATIONS ── */
-.score-display {
-    animation: scoreReveal 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-.badge {
-    animation: fadeInUp 0.4s ease-out 0.1s both;
-}
-
-/* ── METRIC CARDS — staggered ── */
-.metric-card {
-    animation: fadeInUp 0.4s ease-out both;
-    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-}
-.metric-card:hover {
-    transform: translateY(-4px) !important;
-    border-color: var(--border-active) !important;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important;
-}
-
-/* ── STAT CARDS — staggered via nth-child ── */
-.stat-card {
-    animation: fadeInUp 0.4s ease-out both;
-    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-}
-.stat-card:hover {
-    transform: translateY(-3px) !important;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.25) !important;
-}
-
-/* ── EXPANDER ROWS — subtle fade in ── */
-.streamlit-expanderHeader {
-    animation: fadeIn 0.3s ease-out both;
-    transition: background 0.2s ease, border-color 0.2s ease !important;
-}
-.streamlit-expanderHeader:hover {
-    border-color: var(--border-active) !important;
-    background: var(--bg-elevated) !important;
-}
-
-/* ── BUTTON HOVER GLOW (MerchBanao style) ── */
-.stButton > button:hover,
-.stDownloadButton > button:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 20px rgba(232, 224, 208, 0.18) !important;
-}
-.stButton > button[kind="secondary"]:hover {
-    transform: translateY(-1px) !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
-}
-            
-/* ── EXPANDER — force dark on open state ── */
-details {
-    background: var(--bg-card) !important;
-    border: 1px solid var(--border) !important;
-    border-radius: var(--radius-sm) !important;
-}
-details[open] {
-    border-color: var(--border-active) !important;
-}
-details summary {
-    background: var(--bg-card) !important;
-    color: var(--text-primary) !important;
-}
-details > div,
-details > div > div {
-    background: var(--bg-card) !important;
-}
-
-/* Streamlit's internal expander content wrapper */
-[data-testid="stExpander"] {
-    background: var(--bg-card) !important;
-    border: 1px solid var(--border) !important;
-    border-radius: var(--radius-sm) !important;
-}
-[data-testid="stExpander"] > details {
-    background: var(--bg-card) !important;
-}
-[data-testid="stExpander"] > details > summary {
-    background: var(--bg-card) !important;
-}
-[data-testid="stExpander"] > details[open] > div {
-    background: var(--bg-card) !important;
-    border-top: 1px solid var(--border) !important;
-}
-
-/* Nuclear option — catch any white divs inside expanders */
-[data-testid="stExpander"] * {
-    background-color: transparent !important;
-}
-[data-testid="stExpander"] > details,
-[data-testid="stExpander"] > details > summary,
-[data-testid="stExpander"] > details > div {
-    background-color: var(--bg-card) !important;
-}
 </style>
 """, unsafe_allow_html=True)
 
@@ -628,9 +558,9 @@ with tab2:
             st.success(f"✅ Analyzed {len(questions)} questions!")
             
             # Stats
-            high = sum(1 for _, _, s in ranked if s >= 7)
-            medium = sum(1 for _, _, s in ranked if 4 <= s < 7)
-            low = sum(1 for _, _, s in ranked if s < 4)
+            high = sum(1 for r in ranked if r['score'] >= 7)
+            medium = sum(1 for r in ranked if 4 <= r['score'] < 7)
+            low = sum(1 for r in ranked if r['score'] < 4)
             
             c1, c2, c3, c4 = st.columns(4)
             with c1:
@@ -667,7 +597,10 @@ with tab2:
             # Show ALL questions (no limit)
             st.markdown(f'**📋 All {len(ranked)} Questions (Ranked by Score)**')
             
-            for i, (q, pred, score) in enumerate(ranked):
+            for i, result in enumerate(ranked):
+                q = result['question']
+                pred = result['prediction']
+                score = result['score']
                 score10 = round(score, 1)
                 original = questions[cleaned_questions.index(q)] if q in cleaned_questions else q
     # Strip any leading "N." line number artifacts from the file
@@ -703,7 +636,9 @@ with tab2:
             
             st.divider()
             csv_data = "Question,Score,Quality\n"
-            for q, _, s in ranked:
+            for result in ranked:
+                q = result['question']
+                s = result['score']
                 original = questions[cleaned_questions.index(q)] if q in cleaned_questions else q
                 quality = "High" if s >= 7 else "Medium" if s >= 4 else "Low"
                 csv_data += f'"{original}",{s:.1f},{quality}\n'
