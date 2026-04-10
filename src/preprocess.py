@@ -1,39 +1,45 @@
-import nltk
 import string
-import os
-from nltk.corpus import stopwords
+import re
 
-# Create local nltk_data directory for Streamlit Cloud
-nltk_data_dir = os.path.join(os.path.dirname(__file__), 'nltk_data')
-os.makedirs(nltk_data_dir, exist_ok=True)
-
-# Download to local directory if not present
-try:
-    nltk.data.find('tokenizers/punkt', paths=[nltk_data_dir])
-except LookupError:
-    nltk.download('punkt', download_dir=nltk_data_dir, quiet=True)
-
-try:
-    nltk.data.find('corpora/stopwords', paths=[nltk_data_dir])
-except LookupError:
-    nltk.download('stopwords', download_dir=nltk_data_dir, quiet=True)
-
-# Add to path
-nltk.data.path.insert(0, nltk_data_dir)
-
-stop_words = set(stopwords.words('english'))
+# Simple stopwords list (no NLTK download needed)
+STOPWORDS = {
+    'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', "you're", 
+    "you've", "you'll", "you'd", 'your', 'yours', 'yourself', 'yourselves', 'he', 
+    'him', 'his', 'himself', 'she', "she's", 'her', 'hers', 'herself', 'it', "it's", 
+    'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which', 
+    'who', 'whom', 'this', 'that', "that'll", 'these', 'those', 'am', 'is', 'are', 
+    'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 
+    'does', 'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 
+    'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'through', 'during', 
+    'before', 'after', 'above', 'below', 'up', 'down', 'in', 'out', 'on', 'off', 
+    'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'when', 
+    'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 
+    'other', 'some', 'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 
+    'than', 'too', 'very', 's', 't', 'can', 'will', 'just', 'don', "don't", 
+    'should', "should've", 'now', 'd', 'll', 'm', 'o', 're', 've', 'y', 'ain', 
+    'aren', "aren't", 'couldn', "couldn't", 'didn', "didn't", 'doesn', "doesn't", 
+    'hadn', "hadn't", 'hasn', "hasn't", 'haven', "haven't", 'isn', "isn't", 'ma', 
+    'mightn', "mightn't", 'mustn', "mustn't", 'needn', "needn't", 'shan', "shan't", 
+    'shouldn', "shouldn't", 'wasn', "wasn't", 'weren', "weren't", 'won', "won't", 
+    'wouldn', "wouldn't"
+}
 
 def clean_text(text):
-    """Clean text without relying on word_tokenize (avoids punkt issues)"""
+    """Clean text without any NLTK dependencies"""
+    if not text:
+        return ""
+    
+    # Lowercase
     text = text.lower()
     
-    # Remove punctuation manually
-    text = text.translate(str.maketrans('', '', string.punctuation))
+    # Remove punctuation except apostrophes within words
+    text = re.sub(r"[^\w\s']", ' ', text)
+    text = re.sub(r"'(?!\w)|(?<!\w)'", ' ', text)  # Remove standalone apostrophes
     
-    # Simple split (faster and doesn't require punkt)
+    # Split on whitespace (no word_tokenize needed)
     words = text.split()
     
-    # Remove stopwords
-    filtered_words = [w for w in words if w not in stop_words and len(w) > 1]
+    # Remove stopwords and short words
+    filtered_words = [w.strip("'") for w in words if w not in STOPWORDS and len(w) > 1]
     
-    return " ".join(filtered_words)
+    return " ".join(filtered_words) if filtered_words else text
