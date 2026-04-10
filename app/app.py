@@ -31,8 +31,7 @@ st.set_page_config(
 )
 
 # -----------------------------
-# MERCHBANAO DESIGN SYSTEM (CSS)
-# ✅ UPDATED: Button aesthetic with solid bottom shadow effect
+# CSS
 # -----------------------------
 st.markdown("""
 <style>
@@ -525,7 +524,7 @@ with tab1:
                 if st.button("🔄 Analyze Another", use_container_width=True):
                     st.rerun()
             with c2:
-                # ✅ Export button now matches (black background, white text)
+                
                 st.download_button(
                     label="📥 Export Result",
                     data=f"LOQQIN Analysis Report\n\nQuestion: {question}\nScore: {score10}/10\nClarity: {clarity}\nSpecificity: {specificity}\nBloom Level: {bloom}\nVerdict: {badge_text}",
@@ -603,7 +602,7 @@ with tab2:
                 score = result['score']
                 score10 = round(score, 1)
                 original = questions[cleaned_questions.index(q)] if q in cleaned_questions else q
-    # Strip any leading "N." line number artifacts from the file
+            # Strip any leading "N." line number artifacts from the file
                 import re
                 clean_original = re.sub(r'^\d+[\.\)]\s*', '', original)
     
@@ -643,7 +642,7 @@ with tab2:
                 quality = "High" if s >= 7 else "Medium" if s >= 4 else "Low"
                 csv_data += f'"{original}",{s:.1f},{quality}\n'
             
-            # ✅ Export CSV button now matches (black background, white text)
+            
             st.download_button(
                 label="📥 Export All as CSV",
                 data=csv_data,

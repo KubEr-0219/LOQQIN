@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 LOQQIN Training Script - REGRESSION VERSION
 Treats labels 0-10 as continuous quality scores instead of binary.
@@ -21,24 +20,23 @@ from src.utils import save_objects
 print("📊 Loading questions.csv...")
 df = pd.read_csv("questions.csv")
 
-# ✅ REGRESSION: Use raw labels 0-10 directly (no binarization)
-# This fixes the issue where "Explain..." (label 1) was treated as negative
+#REGRESSION: Use raw labels 0-10 directly (no binarization)
 y = df['label'].values
 print(f"Score range: {y.min()} - {y.max()}")
 print(f"Mean score: {y.mean():.2f}")
 
-# ✅ Apply clean_text()
+#Apply clean_text()
 print("🔧 Preprocessing with clean_text()...")
 df['cleaned'] = df['question'].apply(clean_text)
 df = df[df['cleaned'].str.len() > 0]
 
-# ✅ Create TF-IDF features
+#TF-IDF features
 print("🚀 Creating TF-IDF features...")
 X, vectorizer = create_tfidf_features(df['cleaned'].tolist())
 
 print(f"   Feature matrix: {X.shape}")
 
-# ✅ Train Regression Ensemble (better for 0-10 scale)
+#Regression Ensemble (better for 0-10 scale)
 print("🤖 Training regression ensemble...")
 
 # Base learners

@@ -4,7 +4,7 @@ def create_tfidf_features(text_data):
     # Enhanced vectorizer matching the improved model
     vectorizer = TfidfVectorizer(
         stop_words="english", 
-        ngram_range=(1, 3),  # Include trigrams for phrases like "explain the architecture"
+        ngram_range=(1, 3),  
         max_features=5000,   # Increased from 3000
         lowercase=True,
         token_pattern=r'(?u)\b[a-zA-Z]+\b',

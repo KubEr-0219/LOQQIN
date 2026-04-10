@@ -13,7 +13,7 @@ def train_model(X, y):
     from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
     from sklearn.svm import SVR
     
-    # Use Ridge as meta-learner for stability
+    #Ridge as meta-learner for stability
     estimators = [
         ('ridge', Ridge(alpha=1.0)),
         ('gbr', GradientBoostingRegressor(n_estimators=100, max_depth=3, random_state=42)),
@@ -56,8 +56,8 @@ def rule_based_score(question):
     
     # 🛑 LOW COGNITIVE (Remember) - Stronger penalties to keep them below 4
     low_order = {
-        "define": -2.0,      # Increased penalty
-        "what is": -1.5,     # Increased penalty  
+        "define": -2.0,      
+        "what is": -1.5,       
         "what are": -1.5,
         "list": -2.0,
         "name": -1.5,
