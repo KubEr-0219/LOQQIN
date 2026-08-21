@@ -1,28 +1,39 @@
-import nltk
+"""Text preprocessing for LOQQIN."""
+
+from __future__ import annotations
+
+import re
 import string
+
+import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 
-# download once (first run only)
-nltk.download('punkt')
-nltk.download('stopwords')
 
-stop_words = set(stopwords.words('english'))
+def _ensure_nltk_resources() -> None:
+    """Download NLTK resources only when they are actually missing."""
+    resources = {
+        "tokenizer": ("tokenizers/punkt", "punkt"),
+        "stopwords": ("corpora/stopwords", "stopwords"),
+    }
+    for resource_path, package in resources.values():
+        try:
+            nltk.data.find(resource_path)
+        except LookupError:
+            nltk.download(package, quiet=True)
 
-def clean_text(text):
-    # lowercase
+
+_ensure_nltk_resources()
+_STOP_WORDS = set(stopwords.words("english"))
+
+
+def clean_text(text: str) -> str:
+    """Normalize question text for TF-IDF features."""
+    if not isinstance(text, str):
+        raise TypeError("text must be a string")
+
     text = text.lower()
-
-    # remove punctuation
-    text = text.translate(str.maketrans('', '', string.punctuation))
-
-    # tokenize
+    text = text.translate(str.maketrans("", "", string.punctuation))
+    text = re.sub(r"\s+", " ", text).strip()
     words = word_tokenize(text)
-
-    # remove stopwords
-    filtered_words = [w for w in words if w not in stop_words]
-
-    # join back to sentence
-    cleaned_text = " ".join(filtered_words)
-
-    return cleaned_text
+    return " ".join(word for word in words if word not in _STOP_WORDS)
