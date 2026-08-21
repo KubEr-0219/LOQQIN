@@ -7,6 +7,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from scipy.stats import spearmanr
 from sklearn.base import clone
 from sklearn.ensemble import GradientBoostingRegressor, StackingRegressor
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -82,7 +83,7 @@ def evaluate_regression(X: pd.Series, y: np.ndarray) -> dict:
     cv = KFold(n_splits=N_SPLITS, shuffle=True, random_state=RANDOM_STATE)
     results = {}
     for name, estimator in regression_models().items():
-        mae, rmse, r2 = [], [], []
+        mae, rmse, r2, spearman, within1, within2 = [], [], [], [], [], []
         for train_idx, test_idx in cv.split(X):
             model = clone(estimator)
             model.fit(X.iloc[train_idx], y[train_idx])
@@ -90,7 +91,15 @@ def evaluate_regression(X: pd.Series, y: np.ndarray) -> dict:
             mae.append(mean_absolute_error(y[test_idx], pred))
             rmse.append(float(np.sqrt(mean_squared_error(y[test_idx], pred))))
             r2.append(r2_score(y[test_idx], pred))
-        results[name] = {"MAE": summarize(mae), "RMSE": summarize(rmse), "R2": summarize(r2)}
+            spearman.append(float(spearmanr(y[test_idx], pred).statistic))
+            error = np.abs(y[test_idx] - pred)
+            within1.append(float(np.mean(error <= 1.0)))
+            within2.append(float(np.mean(error <= 2.0)))
+        results[name] = {
+            "MAE": summarize(mae), "RMSE": summarize(rmse), "R2": summarize(r2),
+            "Spearman": summarize(spearman),
+            "Within_1_Point": summarize(within1), "Within_2_Points": summarize(within2),
+        }
     return results
 
 
