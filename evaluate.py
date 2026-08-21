@@ -91,7 +91,8 @@ def evaluate_regression(X: pd.Series, y: np.ndarray) -> dict:
             mae.append(mean_absolute_error(y[test_idx], pred))
             rmse.append(float(np.sqrt(mean_squared_error(y[test_idx], pred))))
             r2.append(r2_score(y[test_idx], pred))
-            spearman.append(float(spearmanr(y[test_idx], pred).statistic))
+            rho = spearmanr(y[test_idx], pred).statistic
+            spearman.append(float(rho) if np.isfinite(rho) else 0.0)
             error = np.abs(y[test_idx] - pred)
             within1.append(float(np.mean(error <= 1.0)))
             within2.append(float(np.mean(error <= 2.0)))
@@ -124,22 +125,26 @@ def evaluate_classification(X: pd.Series, score_labels: np.ndarray) -> dict:
 def main() -> None:
     df = load_dataset()
     X, y = df["text"], df["label"].to_numpy(dtype=float)
+    timestamp = datetime.now(timezone.utc)
     regression = evaluate_regression(X, y)
     classification = evaluate_classification(X, y)
     best_regressor = min(regression, key=lambda n: regression[n]["MAE"]["mean"])
     best_classifier = max(classification, key=lambda n: classification[n]["F1"]["mean"])
     results = {
-        "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+        "timestamp_utc": timestamp.isoformat(),
         "dataset": {"rows": int(len(df)), "label_min": float(y.min()), "label_max": float(y.max())},
         "cv": {"folds": N_SPLITS, "shuffle": True, "random_state": RANDOM_STATE},
         "regression": regression, "classification": classification,
         "recommended_regressor": best_regressor, "recommended_classifier": best_classifier,
     }
     EXPERIMENT_DIR.mkdir(exist_ok=True)
-    path = EXPERIMENT_DIR / "latest.json"
-    path.write_text(json.dumps(results, indent=2), encoding="utf-8")
+    latest = EXPERIMENT_DIR / "latest.json"
+    run_file = EXPERIMENT_DIR / f"run_{timestamp.strftime('%Y%m%d_%H%M%S')}.json"
+    payload = json.dumps(results, indent=2)
+    latest.write_text(payload, encoding="utf-8")
+    run_file.write_text(payload, encoding="utf-8")
     print(json.dumps(results, indent=2))
-    print(f"\nSaved experiment report to {path}")
+    print(f"\nSaved experiment report to {latest}")
 
 
 if __name__ == "__main__":
