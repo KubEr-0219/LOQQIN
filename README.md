@@ -1,115 +1,130 @@
 # 🧠 LOQQIN
 ### Learning-Oriented Question Quality Predictor
 
-> An ML-powered web application that automatically evaluates the quality of exam questions, classifies them by Bloom's Taxonomy level, and ranks entire question papers — instantly.
+LOQQIN is an NLP application that predicts the quality of examination questions on a **0–10 scale**, estimates Bloom's Taxonomy level, reports transparent clarity/specificity signals, and ranks batches of questions.
 
----
+The project is deliberately split into two parts:
 
-## 📌 Table of Contents
+- **Learned ML score:** TF-IDF + StackingRegressor predicts the 0–10 quality score.
+- **Interpretable educational signals:** Bloom's level, clarity, specificity, and an optional keyword heuristic are deterministic features and **do not modify the ML prediction**.
 
-- [Overview](#overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Installation](#installation)
-- [Usage](#usage)
-- [ML Pipeline](#ml-pipeline)
-- [Scoring System](#scoring-system)
-- [Bloom's Taxonomy Mapping](#blooms-taxonomy-mapping)
-- [Dataset](#dataset)
-- [Team](#team)
-
----
-
-## 📖 Overview
-
-In educational settings, question quality varies significantly — some questions test surface-level memorization while others assess deep conceptual understanding. Manually reviewing large question banks is time-consuming, subjective, and inconsistent.
-
-**LOQQIN** solves this by providing an automated, deterministic quality scoring pipeline. Given any exam question, LOQQIN returns:
-
-- A **quality score** from 0 to 10
-- A **Bloom's Taxonomy level** (Remember → Create)
-- **Clarity** and **Specificity** metrics
-- A **quality badge** (High / Medium / Low)
-
-For educators managing large question banks, the **batch upload** feature ranks an entire question paper by quality in seconds.
-
----
-
-## ✨ Features
+## Features
 
 | Feature | Description |
 |---|---|
-| Single Question Analyzer | Paste any question and get instant quality feedback |
-| Bloom's Level Detection | Automatically maps to all 6 Bloom's Taxonomy levels |
-| Clarity & Specificity Metrics | Word-count and domain-term based analysis |
-| Batch Upload & Ranking | Upload a .txt file, get all questions ranked by score |
-| Quality Stats Dashboard | High / Medium / Low breakdown for batch results |
-| Export Results | Download single result as .txt or batch results as .csv |
-| Custom Dark UI | MerchBanao-inspired dark design system with Syne + DM Sans fonts |
-| Print-Friendly | @media print CSS converts dark theme to clean white for printouts |
+| Single Analyzer | Score an individual exam/assessment question |
+| Bloom's Taxonomy | Deterministic mapping from Remember → Create |
+| Clarity & Specificity | Transparent rule-based explanatory metrics |
+| Batch Ranking | Score and rank multiple questions |
+| Export | Download individual and batch results |
+| Streamlit UI | Interactive browser-based interface |
+| Reproducible Evaluation | Leakage-safe 5-fold cross-validation and model comparison |
+| Experiment Tracking | Saves evaluation results to `experiments/latest.json` |
 
----
+## ML methodology
 
-## 🛠 Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | Streamlit, Custom CSS (Syne + DM Sans, CSS Variables) |
-| ML Model | scikit-learn — StackingRegressor (Ridge + GBR + SVR) |
-| Text Features | TF-IDF Vectorizer (unigrams + bigrams, 3000 features) |
-| Preprocessing | NLTK — tokenization, stopword removal |
-| Persistence | joblib — model.pkl, vectorizer.pkl |
-| Data | pandas — questions.csv |
-| Language | Python 3.10+ |
-
----
-
-## 📁 Project Structure
-
+```text
+Raw question
+    ↓
+Text normalization (lowercase, punctuation cleanup, tokenization)
+    ↓
+TF-IDF (1–3 grams, up to 5,000 features, sublinear TF)
+    ↓
+StackingRegressor
+    ├── Ridge
+    ├── GradientBoostingRegressor
+    ├── SVR (RBF)
+    └── Ridge meta-learner
+    ↓
+Predicted quality score (0–10)
 ```
+
+The production model contains **no hardcoded keyword prediction overrides**. A question containing words such as `design`, `explain`, or `define` is still scored by the learned model rather than being forced to a fixed value.
+
+### Separate classification benchmark
+
+For model comparison, labels are also converted to a binary educational tier:
+
+- `0–3` → lower-quality tier
+- `4–10` → higher-quality tier
+
+A separate Logistic Regression / Linear SVM benchmark reports Accuracy, F1, and ROC-AUC. These classification metrics are **not** used to claim regression accuracy for the 0–10 score.
+
+## Evaluation methodology
+
+Run:
+
+```bash
+python evaluate.py
+```
+
+The evaluation uses **5-fold shuffled cross-validation with a fixed random seed (42)**. TF-IDF is fitted **inside each fold**, preventing vocabulary/IDF information from leaking from validation folds into training folds.
+
+Regression models compared:
+
+- Ridge
+- Gradient Boosting
+- SVR
+- StackingRegressor
+
+Regression metrics:
+
+- MAE — mean absolute error on the 0–10 scale
+- RMSE — root mean squared error
+- R² — explained variance relative to the dataset mean
+
+Classification metrics:
+
+- Accuracy
+- F1
+- ROC-AUC
+
+The script writes a reproducible experiment report to:
+
+```text
+experiments/latest.json
+```
+
+**Resume rule:** only report metrics produced by `evaluate.py` on the current commit. Do not describe R² as accuracy and do not report training-set metrics as model performance.
+
+## Current baseline
+
+Before the refactor, an external 5-fold evaluation of the original StackingRegressor reported approximately **R² 0.555, RMSE 2.41, and MAE 1.90** on the 0–10 scale. Those numbers are retained as a historical baseline only; rerun `python evaluate.py` after the refactor before using final resume metrics.
+
+## Dataset
+
+`questions.csv` contains manually curated examination questions from engineering/technology domains with labels from **0 to 10**. The labels encode intended question depth/quality using Bloom's Taxonomy principles.
+
+Because the dataset is relatively small, results should be described as performance on this curated dataset rather than as universal question-quality accuracy.
+
+## Project structure
+
+```text
 LOQQIN/
-│
 ├── app/
-│   └── app.py                  # Streamlit frontend — UI, tabs, rendering
-│
+│   └── app.py                  # Streamlit interface
 ├── src/
-│   ├── model.py                # ML model, scoring, metrics, ranking
-│   ├── features.py             # TF-IDF vectorizer creation
-│   ├── preprocess.py           # Text cleaning pipeline (NLTK)
-│   └── utils.py                # Save/load model pkl files
-│
-├── data/
-│   └── questions.csv           # Labeled training dataset
-│
-├── notebooks/                  # Exploratory notebooks (if any)
-│
-├── main.py                     # Training script — run this first
-├── test.py                     # Diagnostic script — checks environment
-├── model.pkl                   # Serialized trained model
-├── vectorizer.pkl              # Serialized TF-IDF vectorizer
-├── requirements.txt            # Python dependencies
-└── README.md                   # This file
+│   ├── features.py             # Canonical TF-IDF configuration
+│   ├── model.py                # Regression model + inference + educational signals
+│   ├── preprocess.py           # Text normalization
+│   └── utils.py                # Model artifact persistence
+├── tests/
+│   └── test_model.py           # Unit tests
+├── evaluate.py                 # Leakage-safe CV + model comparison
+├── train.py                    # Final model training on all labeled data
+├── test.py                     # Local model smoke test
+├── questions.csv               # Labeled dataset
+├── model.pkl                   # Trained regression artifact
+├── vectorizer.pkl              # Trained TF-IDF artifact
+├── requirements.txt
+└── .github/workflows/ci.yml    # Automated test workflow
 ```
 
----
+## Setup
 
-## ⚙️ Installation
-
-### Prerequisites
-- Python 3.10 or higher
-- pip
-
-### Steps
-
-**1. Clone the repository**
 ```bash
 git clone https://github.com/KubEr-0219/LOQQIN.git
 cd LOQQIN
-```
-
-**2. Create a virtual environment**
-```bash
 python -m venv venv
 
 # Windows
@@ -117,147 +132,53 @@ venv\Scripts\activate
 
 # macOS/Linux
 source venv/bin/activate
-```
 
-**3. Install dependencies**
-```bash
 pip install -r requirements.txt
 ```
 
-**4. Download NLTK data** (first time only)
+NLTK resources are downloaded only when they are missing. You can also download them manually:
+
 ```python
-python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
+import nltk
+nltk.download("punkt")
+nltk.download("stopwords")
 ```
 
-**5. Train the model**
+## Train
+
+Benchmark first:
+
 ```bash
-python main.py
+python evaluate.py
 ```
-This generates `model.pkl` and `vectorizer.pkl` in the project root.
 
-**6. Run the app**
+Then fit the selected production architecture on the complete labeled dataset:
+
+```bash
+python train.py
+```
+
+Training saves synchronized copies of the model and vectorizer for both the repository root and Streamlit app.
+
+## Run the application
+
 ```bash
 cd app
 streamlit run app.py
 ```
 
-The app will open at `http://localhost:8501`
+## Smoke test
 
----
-
-## 🚀 Usage
-
-### Single Question Analysis
-1. Open the app in your browser
-2. Go to the **Single Analyzer** tab
-3. Type or paste your question into the text area
-4. Click **✨ Analyze Question**
-5. View your score, quality badge, and Bloom's metrics
-6. Optionally export the result as a `.txt` report
-
-### Batch Upload
-1. Prepare a `.txt` file with one question per line
-2. Go to the **Batch Upload** tab
-3. Upload your file
-4. Click **✨ Analyze Questions**
-5. View ranked results with stats breakdown
-6. Export all results as `.csv`
-
-### Diagnostics
-If the app fails to load, run the diagnostic script:
 ```bash
 python test.py
 ```
-This checks file presence, model loading, and runs a test prediction.
 
----
+## Engineering notes
 
-## 🤖 ML Pipeline
+The project intentionally separates **prediction** from **explanation**. Bloom's Taxonomy, clarity, specificity, and the optional keyword heuristic are useful educational context, but they are not silently mixed into the ML score. This keeps the evaluation reproducible and makes the model behavior defensible in an interview.
 
-```
-Raw Question
-     │
-     ▼
-preprocess.py ──── lowercase → remove punctuation → tokenize → remove stopwords
-     │
-     ▼
-features.py ────── TF-IDF vectorization (unigrams + bigrams, max 3000 features)
-     │
-     ▼
-model.py ──────── StackingRegressor
-                   ├── Ridge (alpha=1.0)
-                   ├── GradientBoostingRegressor
-                   ├── SVR (kernel='rbf')
-                   └── Meta-learner: Ridge (alpha=0.5)
-     │
-     ▼
-rule_based_score() ── keyword modifier (±2 cap)
-     │
-     ▼
-Final Score (0–10) + Bloom's Level + Clarity + Specificity
-```
-
----
-
-## 📊 Scoring System
-
-LOQQIN uses a **hybrid scoring system**:
-
-```
-ml_score      = StackingRegressor prediction (0–10)
-rule_modifier = clamp(keyword_score × 0.5, -2, +2)
-final_score   = clamp(ml_score + rule_modifier, 0, 10)
-```
-
-| Score Range | Quality Badge |
-|---|---|
-| 7.0 – 10.0 | 🟢 High Quality |
-| 4.0 – 6.9 | 🟡 Medium Depth |
-| 0.0 – 3.9 | 🔴 Surface Level |
-
-### Rule-Based Keyword Modifiers
-
-| Keywords | Effect |
-|---|---|
-| design, evaluate, analyze, compare | Positive modifier |
-| define, list, name, state, identify | Negative modifier |
-
----
-
-## 📚 Bloom's Taxonomy Mapping
-
-LOQQIN detects Bloom's level hierarchically from highest to lowest:
-
-| Level | Trigger Keywords |
-|---|---|
-| **Create** | design, develop, construct, propose, build, architect |
-| **Evaluate** | evaluate, justify, assess, critique, argue, defend |
-| **Analyze** | analyze, compare, contrast, differentiate, examine, why |
-| **Apply** | solve, use, demonstrate, calculate, apply, implement |
-| **Understand** | explain, describe, summarize, interpret, classify |
-| **Remember** | define, list, name, state, recall, identify, what is |
-
----
-
-## 📂 Dataset
-
-The training dataset (`data/questions.csv`) contains labeled exam questions:
-
-| Column | Description |
-|---|---|
-| `question` | Raw question text |
-| `label` | 1 = High quality / Deep, 0 = Surface level |
-
-Questions were manually curated and labeled based on Bloom's Taxonomy principles across multiple engineering subjects including IoT, Machine Learning, and Computer Science.
-
----
-
-## 📄 License
+## License
 
 This project was developed as an academic project at Swami Vivekananda Institute of Technology.
 
----
-
-<div align="center">
-  <p>Built with ❤️ at SVIT · LOQQIN © 2026</p>
-</div>
+<div align="center">Built with ❤️ at SVIT · LOQQIN © 2026</div>
