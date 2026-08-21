@@ -11,12 +11,13 @@ from nltk.tokenize import word_tokenize
 
 
 def _ensure_nltk_resources() -> None:
-    """Download NLTK resources only when they are actually missing."""
-    resources = {
-        "tokenizer": ("tokenizers/punkt", "punkt"),
-        "stopwords": ("corpora/stopwords", "stopwords"),
-    }
-    for resource_path, package in resources.values():
+    """Download NLTK resources only when they are missing."""
+    resources = [
+        ("tokenizers/punkt", "punkt"),
+        ("tokenizers/punkt_tab", "punkt_tab"),
+        ("corpora/stopwords", "stopwords"),
+    ]
+    for resource_path, package in resources:
         try:
             nltk.data.find(resource_path)
         except LookupError:
@@ -31,7 +32,6 @@ def clean_text(text: str) -> str:
     """Normalize question text for TF-IDF features."""
     if not isinstance(text, str):
         raise TypeError("text must be a string")
-
     text = text.lower()
     text = text.translate(str.maketrans("", "", string.punctuation))
     text = re.sub(r"\s+", " ", text).strip()
