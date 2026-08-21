@@ -1,179 +1,103 @@
-from sklearn.linear_model import LogisticRegression
-from sklearn.svm import LinearSVC
-from sklearn.calibration import CalibratedClassifierCV
-from sklearn.ensemble import StackingRegressor, RandomForestRegressor
-from sklearn.linear_model import Ridge
-import numpy as np
-import re
+"""Model training, inference, and question-quality utilities."""
 
-def train_model(X, y):
-    """
-    TRAIN REGRESSION MODEL for 0-10 quality scores
-    """
-    from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
-    from sklearn.svm import SVR
-    
-    #Ridge as meta-learner for stability
+from __future__ import annotations
+
+from typing import Sequence
+
+import numpy as np
+from sklearn.ensemble import GradientBoostingRegressor, StackingRegressor
+from sklearn.linear_model import Ridge
+from sklearn.svm import SVR
+
+
+def build_regressor(random_state: int = 42) -> StackingRegressor:
+    """Build the production regression ensemble used by LOQQIN."""
     estimators = [
-        ('ridge', Ridge(alpha=1.0)),
-        ('gbr', GradientBoostingRegressor(n_estimators=100, max_depth=3, random_state=42)),
-        ('svr', SVR(kernel='rbf', C=1.0))
+        ("ridge", Ridge(alpha=1.0)),
+        ("gbr", GradientBoostingRegressor(n_estimators=100, learning_rate=0.05, max_depth=3, random_state=random_state)),
+        ("svr", SVR(kernel="rbf", C=1.0, epsilon=0.1)),
     ]
-    
-    model = StackingRegressor(
-        estimators=estimators,
-        final_estimator=Ridge(alpha=0.5),
-        cv=3
-    )
-    
+    return StackingRegressor(estimators=estimators, final_estimator=Ridge(alpha=0.5), cv=3, n_jobs=-1)
+
+
+def train_model(X, y, random_state: int = 42) -> StackingRegressor:
+    """Fit the production regression ensemble."""
+    model = build_regressor(random_state=random_state)
     model.fit(X, y)
     return model
 
-def rule_based_score(question):
-    """
-    BALANCED rule-based scoring - weights tuned to match 0-10 scale expectations
-    """
+
+def _clamp_score(score: float) -> float:
+    return float(np.clip(score, 0.0, 10.0))
+
+
+def predict_question(model, vectorizer, question: str) -> tuple[int, float]:
+    """Predict the learned 0-10 quality score without keyword overrides."""
+    if not isinstance(question, str) or not question.strip():
+        raise ValueError("question must be a non-empty string")
+    question_vector = vectorizer.transform([question.strip()])
+    ml_score = _clamp_score(float(model.predict(question_vector)[0]))
+    prediction = int(ml_score >= 4.0)
+    return prediction, round(ml_score, 2)
+
+
+def heuristic_score(question: str) -> float:
+    """Return an optional explanatory heuristic; never alter the ML prediction."""
     q = question.lower().strip()
-    score = 0.0
-    
-    # 🎯 HIGH COGNITIVE (Create/Evaluate/Analyze) - Moderate bonuses (2-3 points max)
-    high_order = {
-        "design": 3.0, "architect": 3.0, "develop": 2.5, "create": 3.0,
-        "formulate": 2.0,
+    weights = {
+        "design": 3.0, "architect": 3.0, "develop": 2.5, "create": 3.0, "formulate": 2.0,
         "evaluate": 2.5, "assess": 2.0, "critique": 2.5, "justify": 2.0,
-        "analyze": 2.5, "investigate": 2.0, 
-        "compare": 2.0, "contrast": 2.0, "differentiate": 2.0,  # Reduced from 4.0
-    }
-    
-    # 📚 MID COGNITIVE (Apply/Understand) - Small bonuses (1-2 points)
-    mid_order = {
-        "explain": 1.5,      # Reduced from 2.5 (was pushing "Explain..." to 10.0)
-        "discuss": 1.5, 
-        "describe": 1.0,     # Reduced (was pushing "Describe..." too high)
-        "summarize": 0.5,
+        "analyze": 2.5, "compare": 2.0, "contrast": 2.0, "differentiate": 2.0,
+        "explain": 1.5, "discuss": 1.5, "describe": 1.0, "summarize": 0.5,
         "apply": 1.5, "implement": 1.5, "solve": 1.0,
-    }
-    
-    # 🛑 LOW COGNITIVE (Remember) - Stronger penalties to keep them below 4
-    low_order = {
-        "define": -2.0,      
-        "what is": -1.5,       
-        "what are": -1.5,
-        "list": -2.0,
-        "name": -1.5,
-        "state": -1.0,
-        "identify": -1.0,
-        "recall": -1.5,
-    }
-    
-    # 🔧 TECHNICAL DEPTH - Small boost
-    technical = {
-        "architecture": 1.0, "algorithm": 0.8, 
-        "trade-off": 1.0, "tradeoff": 1.0,
+        "define": -2.0, "what is": -1.5, "what are": -1.5, "list": -2.0,
+        "name": -1.5, "state": -1.0, "identify": -1.0, "recall": -1.5,
+        "architecture": 1.0, "algorithm": 0.8, "trade-off": 1.0, "tradeoff": 1.0,
         "complexity": 0.5, "optimization": 0.5,
     }
-    
-    # Calculate scores
-    for word, weight in high_order.items():
-        if word in q:
-            score += weight
-            
-    for word, weight in mid_order.items():
-        if word in q:
-            score += weight
-            
-    for word, weight in low_order.items():
-        if word in q:
-            score += weight
-            
-    for word, weight in technical.items():
-        if word in q:
-            score += weight
-    
-    # 📏 LENGTH BONUS (moderate)
-    word_count = len(q.split())
-    if word_count >= 12:
-        score += 0.5      # Reduced from 2.0
-    elif word_count < 4:
-        score -= 1.0
-    
-    return score
+    score = sum(weight for term, weight in weights.items() if term in q)
+    words = len(q.split())
+    score += 0.5 if words >= 12 else -1.0 if words < 4 else 0.0
+    return float(np.clip(score, -5.0, 5.0))
 
-def predict_question(model, vectorizer, question):
-    question_clean = question.strip()
-    question_vector = vectorizer.transform([question_clean])
-    
-    ml_score = float(model.predict(question_vector)[0])
-    rule_score = rule_based_score(question_clean)
-    
-    # OVERRIDE SYSTEM: If ML and rules disagree significantly, use rule-based tiering
-    if "design" in question_clean.lower() or "architect" in question_clean.lower():
-        return 1, 8.5  # Force high for design (label 8-9 in training matches)
-    elif "analyze" in question_clean.lower() or "compare" in question_clean.lower():
-        return 1, 7.0  # Force 7 for analyze/compare (override label 1)
-    elif "explain" in question_clean.lower():
-        return 1, 6.0  # Force 6 for explain (override label 1)
-    elif "define" in question_clean.lower() or "what is" in question_clean.lower():
-        return 0, 2.5  # Force low for define
-    
-    # Default: use ML for everything else
-    final_score = max(0.0, min(10.0, ml_score))
-    prediction = 1 if final_score >= 5.0 else 0
-    return prediction, round(final_score, 1)
 
-def rank_questions(model, vectorizer, questions):
-    """Rank questions with debugging info"""
+def rank_questions(model, vectorizer, questions: Sequence[str]) -> list[dict]:
+    """Score and rank questions while preserving original text."""
     results = []
-    for q in questions:
-        pred, score = predict_question(model, vectorizer, q)
-        rule_score = rule_based_score(q)
+    for question in questions:
+        _, score = predict_question(model, vectorizer, question)
         results.append({
-            'question': q,
-            'prediction': pred,
-            'score': score,
-            'rule_contribution': rule_score,
-            'length': len(q.split())
+            "question": question,
+            "prediction": int(score >= 4.0),
+            "score": score,
+            "rule_signal": round(heuristic_score(question), 2),
+            "length": len(question.strip().split()),
         })
-    
-    results.sort(key=lambda x: x['score'], reverse=True)
-    return results
+    return sorted(results, key=lambda item: item["score"], reverse=True)
 
-def analyze_question_metrics(question):
-    """Enhanced metrics with proper Bloom's detection"""
-    q = question.lower()
-    
-    # Bloom's Taxonomy (hierarchical)
+
+def analyze_question_metrics(question: str) -> tuple[str, str, str]:
+    """Compute transparent deterministic clarity, specificity, and Bloom level."""
+    if not isinstance(question, str) or not question.strip():
+        raise ValueError("question must be a non-empty string")
+    q = question.lower().strip()
+    tokens = set(q.replace("?", " ").split())
     bloom_levels = {
-        "Create": ["design", "construct", "develop", "formulate", "author", "investigate", "create"],
-        "Evaluate": ["evaluate", "critique", "justify", "defend", "judge", "recommend", "assess"],
-        "Analyze": ["analyze", "compare", "contrast", "differentiate", "examine", "investigate", "why"],
-        "Apply": ["apply", "solve", "use", "demonstrate", "calculate", "implement", "execute"],
-        "Understand": ["explain", "describe", "summarize", "interpret", "classify", "discuss"],
-        "Remember": ["define", "list", "name", "state", "recall", "identify", "what is", "who", "when"]
+        "Create": {"design", "construct", "develop", "formulate", "author", "create", "build", "architect"},
+        "Evaluate": {"evaluate", "critique", "justify", "defend", "judge", "recommend", "assess"},
+        "Analyze": {"analyze", "analyse", "compare", "contrast", "differentiate", "examine"},
+        "Apply": {"apply", "solve", "use", "demonstrate", "calculate", "implement", "execute"},
+        "Understand": {"explain", "describe", "summarize", "interpret", "classify", "discuss"},
+        "Remember": {"define", "list", "name", "state", "recall", "identify", "what", "who", "when"},
     }
-    
-    # Detect highest level
     bloom_level = "Remember"
-    for level in ["Create", "Evaluate", "Analyze", "Apply", "Understand"]:
-        if any(kw in q for kw in bloom_levels[level]):
+    for level in ("Create", "Evaluate", "Analyze", "Apply", "Understand"):
+        if tokens.intersection(bloom_levels[level]):
             bloom_level = level
             break
-    
-    # Clarity
     word_count = len(q.split())
-    if word_count < 5:
-        clarity = "Too Short"
-    elif word_count <= 12:
-        clarity = "High"
-    elif word_count <= 25:
-        clarity = "Medium"
-    else:
-        clarity = "Verbose"
-    
-    # Specificity
-    technical_terms = ["architecture", "algorithm", "protocol", "mechanism", 
-                      "system", "framework", "network", "database", "optimization"]
-    tech_count = sum(1 for t in technical_terms if t in q)
-    specificity = "High" if tech_count >= 2 else "Medium" if tech_count >= 1 else "Low"
-    
+    clarity = "Too Short" if word_count < 5 else "High" if word_count <= 12 else "Medium" if word_count <= 25 else "Verbose"
+    technical_terms = {"architecture", "algorithm", "protocol", "mechanism", "system", "framework", "network", "database", "optimization"}
+    overlap = tokens.intersection(technical_terms)
+    specificity = "High" if len(overlap) >= 2 else "Medium" if overlap else "Low"
     return clarity, specificity, bloom_level
